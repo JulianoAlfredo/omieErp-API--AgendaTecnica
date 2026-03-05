@@ -36,7 +36,10 @@ func main() {
 		AllowCredentials: false,
 		MaxAge:           12 * time.Hour,
 	}))
-
+	router.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Next()
+	})
 	router.POST("/cadastrarServico", servicoHandler.CadastrarServico)
 	router.GET("/listarServicos", servicoHandler.ListarServicos)
 
