@@ -30,7 +30,15 @@ func (h *OrdemServicoHandler) CriarOrdemServico(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": resultado})
 }
+func (h *OrdemServicoHandler) ListarOrdemServicos(c *gin.Context) {
 
+	resultado, err := h.omieService.ListarOrdemServico()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": resultado})
+}
 func (h *OrdemServicoHandler) FaturarOrdemServico(c *gin.Context) {
 	var req models.FaturaOrdemServicoRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

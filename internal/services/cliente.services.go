@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"example/web-service-gin/internal/models"
 	"fmt"
 	"io"
@@ -45,29 +46,37 @@ func (s *OmieService) CriarCliente(req models.ClienteRequest) (string, error) {
 	return "Cliente cadastrado com sucesso", nil
 }
 
-func (s *OmieService) ListarClientes() (string, error) {
+func (s *OmieService) ListarClientes() (map[string]any, error) {
 	url := s.BaseURL + "/api/v1/geral/clientes/"
 	payload := strings.NewReader(`{
-				"call": "ListarClientes",
-				"param":[{"pagina":1,"registros_por_pagina":20,"apenas_importado_api":"N"}],
-				"app_key": "` + s.AppKey + `",
-				"app_secret": "` + s.AppSecret + `"
-		}`)
+        "call": "ListarClientes",
+        "param":[{"pagina":1,"registros_por_pagina":20,"apenas_importado_api":"N"}],
+        "app_key": "` + s.AppKey + `",
+        "app_secret": "` + s.AppSecret + `"
+    }`)
+
 	httpReq, err := http.NewRequest("POST", url, payload)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
-	resp, err := client.Do(httpReq)
+	resp, err := (&http.Client{}).Do(httpReq)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println("Resposta:", string(body))
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
-	return string(body), nil
+	var result map[string]any
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, err
+	}
+
+	fmt.Println("Resposta:", result)
+	return result, nil
 }

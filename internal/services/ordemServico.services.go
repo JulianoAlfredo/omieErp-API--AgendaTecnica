@@ -1,8 +1,8 @@
 package services
 
 import (
-	"example/web-service-gin/internal/models"
 	"encoding/json"
+	"example/web-service-gin/internal/models"
 	"fmt"
 	"io"
 	"net/http"
@@ -32,6 +32,7 @@ func formatServicos(servicos interface{}) string {
 	data, _ := json.Marshal(servicos)
 	return string(data)
 }
+
 // JA CRIA OS EM EXECUCAO... AS OS AQUI VAO SERVIR APENAS PARA FATURAMENTO, SEM SER ACOMPANHAMENTO DA OS MESMO
 func (s *OmieService) CriarOrdemServico(req models.OrdemServicoRequest) (string, error) {
 	url := s.BaseURL + "/api/v1/servicos/os/"
@@ -55,8 +56,7 @@ func (s *OmieService) CriarOrdemServico(req models.OrdemServicoRequest) (string,
 		"app_key": "` + s.AppKey + `",
 		"app_secret": "` + s.AppSecret + `"
 	}`)
-		
-		
+
 	httpReq, err := http.NewRequest("POST", url, payload)
 	if err != nil {
 		return "", err
@@ -79,6 +79,37 @@ func (s *OmieService) CriarOrdemServico(req models.OrdemServicoRequest) (string,
 	return "Cliente cadastrado com sucesso", nil
 }
 
+func (s *OmieService) ListarOrdemServico() (string, error) {
+	url := s.BaseURL + "/api/v1/servicos/os/"
+	payload := strings.NewReader(`{
+	"call":"ListarOS",
+	"param":[{
+		"pagina":1,
+		"registros_por_pagina":50,
+		"apenas_importado_api":"N"
+		}],
+	"app_key":"` + s.AppKey + `",
+	"app_secret":"` + s.AppSecret + `"
+	}`)
+
+	httpReq, err := http.NewRequest("POST", url, payload)
+	if err != nil {
+		return "", err
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(httpReq)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	fmt.Println("Resposta:", string(body))
+
+	return string(body), nil
+}
 
 func (s *OmieService) FaturarOrdemServico(req models.FaturaOrdemServicoRequest) (string, error) {
 	url := s.BaseURL + "/api/v1/servicos/osp/"
@@ -91,8 +122,7 @@ func (s *OmieService) FaturarOrdemServico(req models.FaturaOrdemServicoRequest) 
 		"app_key": "` + s.AppKey + `",
 		"app_secret": "` + s.AppSecret + `"
 	}`)
-		
-		
+
 	httpReq, err := http.NewRequest("POST", url, payload)
 	if err != nil {
 		return "", err

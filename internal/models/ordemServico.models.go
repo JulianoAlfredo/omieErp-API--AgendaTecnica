@@ -32,8 +32,8 @@ type OrdemServicoRequest struct {
 		NValUnit       float64 `json:"nValUnit"`
 		NCodServico    int     `json:"nCodServico"`
 		Impostos       struct {
-			CRetemIRRF  string `json:"cRetemIRRF"`
-			CRetemPIS   string `json:"cRetemPIS"`
+			CRetemIRRF  string  `json:"cRetemIRRF"`
+			CRetemPIS   string  `json:"cRetemPIS"`
 			NAliqCOFINS float64 `json:"nAliqCOFINS"`
 			NAliqCSLL   float64 `json:"nAliqCSLL"`
 			NAliqIRRF   float64 `json:"nAliqIRRF"`
@@ -42,7 +42,6 @@ type OrdemServicoRequest struct {
 		} `json:"Impostos"`
 	} `json:"ServicosPrestados"`
 }
-
 
 type FaturaOrdemServicoRequest struct {
 	CCodIntOS string `json:"cCodIntOS"`

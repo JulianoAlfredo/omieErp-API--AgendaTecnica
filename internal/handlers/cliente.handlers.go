@@ -33,14 +33,12 @@ func (h *ClienteHandler) CadastrarCliente(c *gin.Context) {
 
 func (h *ClienteHandler) ListarClientes(c *gin.Context) {
 
-	c.JSON(http.StatusOK, gin.H{"message": "Listar clientes endpoint"})
-
 	resultado, err := h.omieService.ListarClientes()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": resultado})
+	c.JSON(http.StatusOK, resultado)
 
 }
