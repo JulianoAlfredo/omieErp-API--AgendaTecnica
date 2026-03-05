@@ -33,13 +33,9 @@ func main() {
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: false,
-		MaxAge:           12 * time.Hour,
+		AllowCredentials: true
 	}))
-	router.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Next()
-	})
+
 	router.POST("/cadastrarServico", servicoHandler.CadastrarServico)
 	router.GET("/listarServicos", servicoHandler.ListarServicos)
 
