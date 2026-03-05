@@ -55,7 +55,7 @@ func main() {
 	fmt.Println(os.Getenv("PORT"), os.Getenv("OMIE_APP_KEY"))
 	port := os.Getenv("PORT")
 
-	if err := router.Run("localhost:" + port); err != nil {
+	if err := router.Run("0.0.0.0:" + port); err != nil {
 		log.Fatal(err)
 	}
 }
