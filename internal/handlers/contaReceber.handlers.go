@@ -45,7 +45,10 @@ func (h *ContaReceberHandler) GerarBoletoConta(c *gin.Context) {
 	var req models.GerarBoletoConta
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "body inválido",
+			"detalhe": err.Error(),
+		})
 		return
 	}
 
@@ -54,5 +57,6 @@ func (h *ContaReceberHandler) GerarBoletoConta(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusOK, resultado)
 }
