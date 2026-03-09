@@ -6,6 +6,6 @@ type ContaReceberRequest struct {
 }
 
 type GerarBoletoConta struct {
-	NCodTitulo    int `json:"nCodTitulo"`
-	CCodIntTitulo int `json:"cCodIntTitulo"`
+	NCodTitulo    int    `json:"nCodTitulo"`
+	CCodIntTitulo string `json:"cCodIntTitulo"`
 }
