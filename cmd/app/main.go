@@ -18,8 +18,8 @@ func main() {
 	omieService := services.NewOmieService(
 		// "7273681392978", PRODUCAO
 		// "1effda944135f315ade14bdd2e7a896c", PRODUCAO
-		os.Getenv("OMIE_APP_KEY"),
-		os.Getenv("OMIE_APP_SECRET"),
+		"7299234367425",
+		"6de960145c93b18dc08dff314b23dfd9",
 		os.Getenv("OMIE_BASE_URL"),
 	)
 
@@ -52,10 +52,10 @@ func main() {
 	router.POST("/gerarBoletoConta", contaReceberHandler.GerarBoletoConta)
 
 	fmt.Println("Rodando na porta 8080")
-	fmt.Println(os.Getenv("PORT"), os.Getenv("OMIE_APP_KEY"))
+	fmt.Println(os.Getenv("PORT"))
 	port := os.Getenv("PORT")
 
-	if err := router.Run("0.0.0.0:" + port); err != nil {
+	if err := router.Run("localhost:" + port); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -15,7 +15,6 @@ type OrdemServicoHandler struct {
 func NewOrdemServicoHandler(omieService *services.OmieService) *OrdemServicoHandler {
 	return &OrdemServicoHandler{omieService: omieService}
 }
-
 func (h *OrdemServicoHandler) CriarOrdemServico(c *gin.Context) {
 	var req models.OrdemServicoRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

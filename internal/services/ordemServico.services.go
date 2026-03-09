@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// Quero inserir essas 3 funcs em algum utils ou helpers, mas por enquanto vou deixar aqui para não perder o código
 func formatEmail(email interface{}) string {
 	if email == nil {
 		return "null"
@@ -16,7 +17,6 @@ func formatEmail(email interface{}) string {
 	data, _ := json.Marshal(email)
 	return string(data)
 }
-
 func formatInfoAdicionais(info interface{}) string {
 	if info == nil {
 		return "null"
@@ -24,7 +24,6 @@ func formatInfoAdicionais(info interface{}) string {
 	data, _ := json.Marshal(info)
 	return string(data)
 }
-
 func formatServicos(servicos interface{}) string {
 	if servicos == nil {
 		return "[]"
@@ -78,7 +77,6 @@ func (s *OmieService) CriarOrdemServico(req models.OrdemServicoRequest) (string,
 
 	return "Cliente cadastrado com sucesso", nil
 }
-
 func (s *OmieService) ListarOrdemServico() (string, error) {
 	url := s.BaseURL + "/api/v1/servicos/os/"
 	payload := strings.NewReader(`{
@@ -110,13 +108,11 @@ func (s *OmieService) ListarOrdemServico() (string, error) {
 
 	return string(body), nil
 }
-
 func (s *OmieService) FaturarOrdemServico(req models.FaturaOrdemServicoRequest) (string, error) {
 	url := s.BaseURL + "/api/v1/servicos/osp/"
 	payload := strings.NewReader(`{
 		"call":"FaturarOS",
 		"param":[{
-			"cCodIntOS":"` + req.CCodIntOS + `",
 			"nCodOS":` + fmt.Sprint(req.NCodOS) + `
 		}],
 		"app_key": "` + s.AppKey + `",

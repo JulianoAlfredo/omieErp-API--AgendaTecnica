@@ -15,10 +15,11 @@ func (s *OmieService) ConsultarContaReceber(req models.ContaReceberRequest) (str
 	"call":"ConsultarContaReceber",
 	"param":[{
 		"codigo_lancamento_omie":` + fmt.Sprint(req.CodigoLancamentoOmie) + `,
-		"codigo_lancamento_integracao":"` + req.CodigoLancamentoIntegracao + `"}],
+		"codigo_lancamento_integracao":"` + req.CodigoLancamentoIntegracao + `"}], 
 		"app_key":"` + s.AppKey + `",
 		"app_secret":"` + s.AppSecret + `"
 		}`)
+	//codigo_lancamento_integracao não é obrigatório, pode ser vazio
 	httpReq, err := http.NewRequest("POST", url, payload)
 	if err != nil {
 		return "", err
@@ -37,7 +38,6 @@ func (s *OmieService) ConsultarContaReceber(req models.ContaReceberRequest) (str
 
 	return string(body), nil
 }
-
 func (s *OmieService) ListarContasReceber() (map[string]any, error) {
 	url := s.BaseURL + "/api/v1/financas/contareceber/"
 	payload := strings.NewReader(`{
@@ -70,18 +70,18 @@ func (s *OmieService) ListarContasReceber() (map[string]any, error) {
 	fmt.Println("Resposta:", result)
 	return result, nil
 }
-
 func (s *OmieService) GerarBoletoConta(req models.GerarBoletoConta) (string, error) {
 	url := s.BaseURL + "/api/v1/financas/contareceberboleto/"
 	payload := strings.NewReader(`{
-				"call": "GerarBoletoConta",
-	"param":[{
+		"call": "GerarBoletoConta",
+		"param":[{
 		"call":"GerarBoleto",
 		"param":[{"nCodTitulo":` + fmt.Sprint(req.NCodTitulo) + `,
-		"cCodIntTitulo":"` + req.CCodIntTitulo + `"}],
+		"cCodIntTitulo":` + fmt.Sprint(req.CCodIntTitulo) + `}],
 				"app_key": "` + s.AppKey + `",
 				"app_secret": "` + s.AppSecret + `"
 		}`)
+
 	httpReq, err := http.NewRequest("POST", url, payload)
 	if err != nil {
 		return "", err

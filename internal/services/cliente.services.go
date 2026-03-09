@@ -45,7 +45,6 @@ func (s *OmieService) CriarCliente(req models.ClienteRequest) (string, error) {
 
 	return "Cliente cadastrado com sucesso", nil
 }
-
 func (s *OmieService) ListarClientes() (map[string]any, error) {
 	url := s.BaseURL + "/api/v1/geral/clientes/"
 	payload := strings.NewReader(`{

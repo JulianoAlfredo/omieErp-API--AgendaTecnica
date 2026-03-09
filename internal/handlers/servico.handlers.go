@@ -32,7 +32,6 @@ func (h *ServicoHandler) CadastrarServico(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": resultado})
 }
-
 func (h *ServicoHandler) ListarServicos(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Listar serviços endpoint"})

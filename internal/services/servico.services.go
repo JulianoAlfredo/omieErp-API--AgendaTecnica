@@ -22,7 +22,6 @@ func NewOmieService(appKey, appSecret, baseURL string) *OmieService {
 		BaseURL:   baseURL,
 	}
 }
-
 func (s *OmieService) ListarServicos() (string, error) {
 	url := s.BaseURL + "/api/v1/servicos/servico/"
 	payload := strings.NewReader(`{
