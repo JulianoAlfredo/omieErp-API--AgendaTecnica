@@ -1,6 +1,7 @@
 package main
 
 import (
+	"example/web-service-gin/internal/database"
 	"example/web-service-gin/internal/handlers"
 	"example/web-service-gin/internal/services"
 	"fmt"
@@ -22,7 +23,13 @@ func main() {
 		"6de960145c93b18dc08dff314b23dfd9",
 		os.Getenv("OMIE_BASE_URL"),
 	)
+	db := database.ConnectToDB()
 
+	if db == nil {
+		log.Fatal("Failed to connect to database")
+	} else {
+		log.Default().Println("Connected to database successfully")
+	}
 	servicoHandler := handlers.NewServicoHandler(omieService)
 	clienteHandler := handlers.NewClienteHandler(omieService)
 	ordemServicoHandler := handlers.NewOrdemServicoHandler(omieService)
