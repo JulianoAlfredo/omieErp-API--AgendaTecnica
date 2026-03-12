@@ -180,3 +180,56 @@ func (s *OmieService) ConsultarOsFase(req models.ListarOSResponse) (map[string]a
 	return resultMap, nil
 
 }
+
+func (s *OmieService) VerificaOsFaturada(req models.ListarOSResponse) (map[string]any, error) {
+	url := s.BaseURL + "/api/v1/servicos/os/"
+	payload := strings.NewReader(`{
+	"call":"ConsultarOS",
+	"param":[{
+		"cCodIntOS":"` + req.CCodIntOS + `",
+		"nCodOS":` + fmt.Sprint(req.NCodOS) + `,
+		"cNumOS":"` + req.CNumOS + `"
+		}],
+	"app_key":"` + s.AppKey + `",
+	"app_secret":"` + s.AppSecret + `"
+	}`)
+
+	httpReq, err := http.NewRequest("POST", url, payload)
+	if err != nil {
+		return nil, err
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(httpReq)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+
+	var resultMap map[string]any
+	err = json.Unmarshal(body, &resultMap)
+	if err != nil {
+		return nil, err
+	}
+	cabecalho, ok := resultMap["Cabecalho"].(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("campo Cabecalho não encontrado ou inválido")
+	}
+	fmt.Printf("cEtapa: %v\n", cabecalho["cEtapa"])
+
+	infoCadastro, ok := resultMap["InfoCadastro"].(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("campo InfoCadastro não encontrado ou inválido")
+	}
+	cFaturada, ok := infoCadastro["cFaturada"].(string)
+	if !ok {
+		return nil, fmt.Errorf("campo cFaturada não encontrado ou inválido")
+	}
+	fmt.Printf("cFaturada: %v\n", cFaturada)
+
+	return map[string]any{"cFaturada": cFaturada}, nil
+
+}

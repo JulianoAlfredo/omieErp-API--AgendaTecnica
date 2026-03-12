@@ -55,6 +55,7 @@ func main() {
 	router.POST("/criarOrdemServico", ordemServicoHandler.CriarOrdemServico)
 	router.POST("/faturarOrdemServico", ordemServicoHandler.FaturarOrdemServico)
 	router.GET("/consultaOsFase", ordemServicoHandler.ConsultarOsFase)
+	router.GET("/verificarOsFaturada", ordemServicoHandler.VerificaOsFaturada)
 
 	router.GET("/listarContasReceber", contaReceberHandler.ListarContasReceber)
 	router.POST("/consultarContaReceber", contaReceberHandler.ConsultarConta)
@@ -64,7 +65,7 @@ func main() {
 	fmt.Println(os.Getenv("PORT"))
 	port := os.Getenv("PORT")
 
-	if err := router.Run("0.0.0.0:" + port); err != nil {
+	if err := router.Run("localhost:" + port); err != nil {
 		log.Fatal(err)
 	}
 }

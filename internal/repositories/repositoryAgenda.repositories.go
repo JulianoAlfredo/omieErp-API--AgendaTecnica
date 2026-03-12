@@ -29,6 +29,7 @@ func SearchClients(db *sql.DB, idClient string) []map[string]any {
 			"emails":        emails,
 			"cnpj":          cnpj,
 		})
+
 	}
 	return employees
 }
