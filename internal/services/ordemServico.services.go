@@ -219,6 +219,8 @@ func (s *OmieService) VerificaOsFaturada(req models.ListarOSResponse) (map[strin
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("REST: %v\n", resultMap)
+
 	cabecalho, ok := resultMap["Cabecalho"].(map[string]any)
 	if !ok {
 		return nil, fmt.Errorf("campo Cabecalho não encontrado ou inválido")
