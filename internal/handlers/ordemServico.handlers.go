@@ -3,6 +3,7 @@ package handlers
 import (
 	"example/web-service-gin/internal/models"
 	"example/web-service-gin/internal/services"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -76,6 +77,7 @@ func (h *OrdemServicoHandler) VerificaOsFaturada(c *gin.Context) {
 	resultado, err := h.omieService.VerificaOsFaturada(req)
 
 	if err != nil {
+		fmt.Println("Erro ao verificar se a OS está faturada:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
