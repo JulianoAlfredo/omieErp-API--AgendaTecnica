@@ -55,7 +55,7 @@ func main() {
 	router.POST("/criarOrdemServico", ordemServicoHandler.CriarOrdemServico)
 	router.POST("/faturarOrdemServico", ordemServicoHandler.FaturarOrdemServico)
 	router.GET("/consultaOsFase", ordemServicoHandler.ConsultarOsFase)
-	router.GET("/verificarOsFaturada", ordemServicoHandler.VerificaOsFaturada)
+	router.POST("/verificarOsFaturada", ordemServicoHandler.VerificaOsFaturada)
 
 	router.GET("/listarContasReceber", contaReceberHandler.ListarContasReceber)
 	router.POST("/consultarContaReceber", contaReceberHandler.ConsultarConta)
