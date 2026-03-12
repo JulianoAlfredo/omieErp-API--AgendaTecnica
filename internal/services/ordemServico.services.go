@@ -224,7 +224,10 @@ func (s *OmieService) VerificaOsFaturada(req models.ListarOSResponse) (map[strin
 		return nil, fmt.Errorf("campo Cabecalho não encontrado ou inválido")
 	}
 	fmt.Printf("cEtapa: %v\n", cabecalho["cEtapa"])
-
+	codOs, ok := cabecalho["nCodOS"].(float64)
+	if !ok {
+		return nil, fmt.Errorf("campo nCodOS não encontrado ou inválido")
+	}
 	infoCadastro, ok := resultMap["InfoCadastro"].(map[string]any)
 	if !ok {
 		return nil, fmt.Errorf("campo InfoCadastro não encontrado ou inválido")
@@ -235,6 +238,6 @@ func (s *OmieService) VerificaOsFaturada(req models.ListarOSResponse) (map[strin
 	}
 	fmt.Printf("cFaturada: %v\n", cFaturada)
 
-	return map[string]any{"cFaturada": cFaturada}, nil
+	return map[string]any{"cFaturada": cFaturada, "codigoOs": codOs}, nil
 
 }
