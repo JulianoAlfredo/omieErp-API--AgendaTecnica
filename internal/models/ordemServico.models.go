@@ -47,3 +47,19 @@ type FaturaOrdemServicoRequest struct {
 	CCodIntOS string `json:"cCodIntOS"`
 	NCodOS    int    `json:"nCodOS"`
 }
+
+type ListarOSResponse struct {
+	CCodIntOS string `json:"cCodIntOS"`
+	NCodOS    int    `json:"nCodOS"`
+	CNumOS    string `json:"cNumOS"`
+}
+
+type ConsultarOsFaseResponse struct {
+	CCodIntOS  string  `json:"cCodIntOS"`
+	NCodOS     int     `json:"nCodOS"`
+	CNumOS     string  `json:"cNumOS"`
+	CEtapa     string  `json:"cEtapa"`
+	DtPrevisao string  `json:"dDtPrevisao"`
+	ValorTotal float64 `json:"nValorTotal"`
+	CFaturada  string  `json:"cFaturada"`
+}

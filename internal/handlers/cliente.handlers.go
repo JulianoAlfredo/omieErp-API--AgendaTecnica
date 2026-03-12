@@ -38,7 +38,20 @@ func (h *ClienteHandler) ListarClientes(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
 	c.JSON(http.StatusOK, resultado)
+}
 
+func (h *ClienteHandler) ImportarEmpresa(c *gin.Context) {
+	var req models.ClienteImporta
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	resultado, err := h.omieService.ImportarEmpresa(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+
+	}
+	c.JSON(http.StatusOK, gin.H{"message": resultado})
 }

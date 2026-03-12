@@ -49,10 +49,12 @@ func main() {
 
 	router.POST("/cadastrarCliente", clienteHandler.CadastrarCliente)
 	router.GET("/listarClientes", clienteHandler.ListarClientes)
+	router.POST("/importarCliente", clienteHandler.ImportarEmpresa)
 
 	router.GET("/listarOrdemServico", ordemServicoHandler.ListarOrdemServicos)
 	router.POST("/criarOrdemServico", ordemServicoHandler.CriarOrdemServico)
 	router.POST("/faturarOrdemServico", ordemServicoHandler.FaturarOrdemServico)
+	router.GET("/consultaOsFase", ordemServicoHandler.ConsultarOsFase)
 
 	router.GET("/listarContasReceber", contaReceberHandler.ListarContasReceber)
 	router.POST("/consultarContaReceber", contaReceberHandler.ConsultarConta)
