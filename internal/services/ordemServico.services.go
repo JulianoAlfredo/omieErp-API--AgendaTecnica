@@ -5,6 +5,7 @@ import (
 	"example/web-service-gin/internal/models"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -208,6 +209,11 @@ func (s *OmieService) VerificaOsFaturada(req models.ListarOSResponse) (map[strin
 	defer resp.Body.Close()
 
 	body, _ := io.ReadAll(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		log.Fatalf("Erro API: Status %d - Resposta: %s", resp.StatusCode, string(bodyBytes))
+	}
 
 	var resultMap map[string]any
 	err = json.Unmarshal(body, &resultMap)
