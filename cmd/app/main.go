@@ -60,12 +60,25 @@ func main() {
 	router.GET("/listarContasReceber", contaReceberHandler.ListarContasReceber)
 	router.POST("/consultarContaReceber", contaReceberHandler.ConsultarConta)
 	router.POST("/gerarBoletoConta", contaReceberHandler.GerarBoletoConta)
+	router.POST("/webhook", receberWebhook)
 
 	fmt.Println("Rodando na porta 8080")
 	fmt.Println(os.Getenv("PORT"))
 	port := os.Getenv("PORT")
 
-	if err := router.Run("0.0.0.0:" + port); err != nil {
+	if err := router.Run(":" + port); err != nil {
 		log.Fatal(err)
 	}
+}
+func receberWebhook(c *gin.Context) {
+
+	body, err := c.GetRawData()
+	if err != nil {
+		c.JSON(400, gin.H{"erro": "erro ao ler body"})
+		return
+	}
+
+	println(string(body))
+
+	c.Status(200)
 }
