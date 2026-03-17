@@ -42,18 +42,15 @@ type OrdemServicoRequest struct {
 		} `json:"Impostos"`
 	} `json:"ServicosPrestados"`
 }
-
 type FaturaOrdemServicoRequest struct {
 	CCodIntOS string `json:"cCodIntOS"`
 	NCodOS    int    `json:"nCodOS"`
 }
-
 type ListarOSResponse struct {
 	CCodIntOS string `json:"cCodIntOS"`
 	NCodOS    int    `json:"nCodOS"`
 	CNumOS    string `json:"cNumOS"`
 }
-
 type ConsultarOsFaseResponse struct {
 	CCodIntOS  string  `json:"cCodIntOS"`
 	NCodOS     int     `json:"nCodOS"`

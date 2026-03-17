@@ -4,6 +4,7 @@ import (
 	"example/web-service-gin/internal/database"
 	"example/web-service-gin/internal/handlers"
 	"example/web-service-gin/internal/services"
+	"example/web-service-gin/internal/workers"
 	"fmt"
 	"log"
 	"os"
@@ -34,6 +35,9 @@ func main() {
 	clienteHandler := handlers.NewClienteHandler(omieService)
 	ordemServicoHandler := handlers.NewOrdemServicoHandler(omieService)
 	contaReceberHandler := handlers.NewContaReceberHandler(omieService)
+	workerPool := workers.NewWebhookWorkerPool(omieService, 5, 100)
+	defer workerPool.Shutdown()
+	webhookHandler := handlers.NewWebhookHandler(workerPool)
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
@@ -60,7 +64,7 @@ func main() {
 	router.GET("/listarContasReceber", contaReceberHandler.ListarContasReceber)
 	router.POST("/consultarContaReceber", contaReceberHandler.ConsultarConta)
 	router.POST("/gerarBoletoConta", contaReceberHandler.GerarBoletoConta)
-	router.POST("/webhook", receberWebhook)
+	router.POST("/webhook", webhookHandler.ReceberWebhook)
 
 	fmt.Println("Rodando na porta 8080")
 	fmt.Println(os.Getenv("PORT"))
@@ -69,16 +73,4 @@ func main() {
 	if err := router.Run(":" + port); err != nil {
 		log.Fatal(err)
 	}
-}
-func receberWebhook(c *gin.Context) {
-
-	body, err := c.GetRawData()
-	if err != nil {
-		c.JSON(400, gin.H{"erro": "erro ao ler body"})
-		return
-	}
-
-	println(string(body))
-
-	c.Status(200)
 }

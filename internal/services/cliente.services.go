@@ -81,7 +81,6 @@ func (s *OmieService) ListarClientes() (map[string]any, error) {
 	fmt.Println("Resposta:", result)
 	return result, nil
 }
-
 func (s *OmieService) ImportarEmpresa(req models.ClienteImporta) (string, error) {
 
 	url := s.BaseURL + "/api/v1/geral/clientes/"

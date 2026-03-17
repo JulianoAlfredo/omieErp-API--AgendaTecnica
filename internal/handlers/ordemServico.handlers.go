@@ -53,7 +53,6 @@ func (h *OrdemServicoHandler) FaturarOrdemServico(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": resultado})
 }
-
 func (h *OrdemServicoHandler) ConsultarOsFase(c *gin.Context) {
 	var req models.ListarOSResponse
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -67,7 +66,6 @@ func (h *OrdemServicoHandler) ConsultarOsFase(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": resultado})
 }
-
 func (h *OrdemServicoHandler) VerificaOsFaturada(c *gin.Context) {
 	var req models.ListarOSResponse
 	if err := c.ShouldBindJSON(&req); err != nil {

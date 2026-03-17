@@ -33,3 +33,6 @@ func SearchClients(db *sql.DB, idClient string) []map[string]any {
 	}
 	return employees
 }
+
+func faturaOsOmie(db *sql.DB, idOs int64) {
+}
