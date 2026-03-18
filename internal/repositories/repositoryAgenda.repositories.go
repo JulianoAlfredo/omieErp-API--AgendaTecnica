@@ -34,5 +34,11 @@ func SearchClients(db *sql.DB, idClient string) []map[string]any {
 	return employees
 }
 
-func faturaOsOmie(db *sql.DB, idOs int64) {
+func WebhookUpdateOsIncluida(db *sql.DB, idOs string, CodigoIntegra string) (sql.Result, error) {
+	result, err := db.Exec("UPDATE amm_contas_omie_x_agenda SET id_os = ? WHERE id_conta_agenda = ?", idOs, CodigoIntegra)
+	if err != nil {
+		log.Printf("Error updating database: %v", err)
+		return nil, err
+	}
+	return result, err
 }

@@ -1,7 +1,9 @@
 package services
 
 import (
+	"example/web-service-gin/internal/database"
 	"example/web-service-gin/internal/models"
+	"example/web-service-gin/internal/repositories"
 	"fmt"
 	"net/http"
 	"time"
@@ -23,7 +25,15 @@ func (s *OmieService) ProcessarWebhookContaReceber(data models.WebhookContaReceb
 }
 
 func (s *OmieService) ProcessarWebhookOsIncluida(data models.WebhookOsIncluidaResponse) (int, error) {
+	db := database.ConnectToDB()
+
 	fmt.Printf("Processando webhook de OS incluída: Código Integração: %s, ID OS: %d, ID Cliente: %d\n", data.CodigoIntegra, data.IdOs, data.IdCliente)
-	time.Sleep(time.Second * 1)
+	dbUpdt, err := repositories.WebhookUpdateOsIncluida(db, fmt.Sprintf("%d", data.IdOs), data.CodigoIntegra)
+	if err != nil {
+		fmt.Printf("Erro ao atualizar OS incluída: %s\n", err.Error())
+	} else {
+		rowsAffected, _ := dbUpdt.RowsAffected()
+		fmt.Printf("OS incluída atualizada com sucesso. Linhas afetadas: %d\n", rowsAffected)
+	}
 	return http.StatusOK, nil
 }
