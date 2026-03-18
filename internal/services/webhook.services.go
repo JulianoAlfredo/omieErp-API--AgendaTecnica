@@ -33,7 +33,7 @@ func (s *OmieService) ProcessarWebhookOsIncluida(data models.WebhookOsIncluidaRe
 		fmt.Printf("Erro ao atualizar OS incluída: %s\n", err.Error())
 	} else {
 		rowsAffected, _ := dbUpdt.RowsAffected()
-		fmt.Printf("OS incluída atualizada com sucesso. Linhas afetadas: %d\n", rowsAffected)
+		fmt.Printf("\033[32mOS incluída atualizada com sucesso. Linhas afetadas: %d\033[0m\n", rowsAffected)
 	}
 	return http.StatusOK, nil
 }
