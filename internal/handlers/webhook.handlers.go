@@ -45,11 +45,13 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 		codigoConta := body["event"].(map[string]interface{})["codigo_lancamento_omie"]
 		numeroDocumento := body["event"].(map[string]interface{})["numero_documento"]
 		numeroDocumentoFiscal := body["event"].(map[string]interface{})["numero_documento_fiscal"]
+		numeroPedido := body["event"].(map[string]interface{})["numero_pedido"]
 
 		responseContaReceber.CodigoCliente = int64(codigoCliente.(float64))
 		responseContaReceber.CodigoConta = int64(codigoConta.(float64))
 		responseContaReceber.NumeroDocumento = numeroDocumento.(string)
 		responseContaReceber.NumeroDocumentoFiscal = numeroDocumentoFiscal.(string)
+		responseContaReceber.NumeroPedido = numeroPedido.(string)
 		err := h.workerPool.Enqueue(workers.WebhookJob{
 			Tipo:         workers.JobContaReceber,
 			ContaReceber: &responseContaReceber,
@@ -84,10 +86,12 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 		codigoIntegra := body["event"].(map[string]interface{})["codigoIntegracao"]
 		idOs := body["event"].(map[string]interface{})["idOrdemServico"]
 		idCliente := body["event"].(map[string]interface{})["idCliente"]
+		numeroOs := body["event"].(map[string]interface{})["numeroOrdemServico"]
 
 		responseOsIncluida.CodigoIntegra = fmt.Sprintf("%v", codigoIntegra)
 		responseOsIncluida.IdOs = int64(idOs.(float64))
 		responseOsIncluida.IdCliente = int64(idCliente.(float64))
+		responseOsIncluida.NumeroOs = fmt.Sprintf("%v", numeroOs)
 
 		err := h.workerPool.Enqueue(workers.WebhookJob{
 			Tipo:       workers.JobOsIncluida,

@@ -34,7 +34,7 @@ func SearchClients(db *sql.DB, idClient string) []map[string]any {
 	return employees
 }
 
-func WebhookUpdateOsIncluida(db *sql.DB, idOs string, CodigoIntegra string) (sql.Result, error) {
+func WebhookUpdateOsIncluida(db *sql.DB, idOs string, CodigoIntegra string, NumeroOs string) (sql.Result, error) {
 	var count int
 	err := db.QueryRow("SELECT COUNT(1) FROM amm_contas_omie_x_agenda WHERE id_conta_agenda = ?", CodigoIntegra).Scan(&count)
 	if err != nil {
@@ -42,7 +42,7 @@ func WebhookUpdateOsIncluida(db *sql.DB, idOs string, CodigoIntegra string) (sql
 		return nil, err
 	}
 	if count == 0 {
-		insertDb, err := db.Exec("INSERT INTO amm_contas_omie_x_agenda (id_conta_agenda, id_os) VALUES (?, ?)", CodigoIntegra, idOs)
+		insertDb, err := db.Exec("INSERT INTO amm_contas_omie_x_agenda (id_conta_agenda, id_os, numero_os) VALUES (?, ?, ?)", CodigoIntegra, idOs, NumeroOs)
 		if err != nil {
 			log.Printf("Erro ao inserir novo registro: %v", err)
 			return nil, err
@@ -52,14 +52,13 @@ func WebhookUpdateOsIncluida(db *sql.DB, idOs string, CodigoIntegra string) (sql
 			return insertDb, nil
 		}
 	}
-	result, err := db.Exec("UPDATE amm_contas_omie_x_agenda SET id_os = ? WHERE id_conta_agenda = ?", idOs, CodigoIntegra)
+	result, err := db.Exec("UPDATE amm_contas_omie_x_agenda SET id_os = ?, numero_os = ? WHERE id_conta_agenda = ?", idOs, NumeroOs, CodigoIntegra)
 	if err != nil {
 		log.Printf("Erro ao atualizar o banco de dados: %v", err)
 		return nil, err
 	}
 	return result, nil
 }
-
 func WebhookUpdateOsFaturada(db *sql.DB, idOs string, CodigoIntegra string) (sql.Result, error) {
 	result, err := db.Exec("UPDATE amm_contas_omie_x_agenda SET faturada = 1 WHERE  id_os = ?", idOs)
 	if err != nil {
@@ -67,4 +66,23 @@ func WebhookUpdateOsFaturada(db *sql.DB, idOs string, CodigoIntegra string) (sql
 		return nil, err
 	}
 	return result, err
+}
+func WebhookInsertContaReceber(db *sql.DB, CodigoCliente int64, CodigoConta int64, NumeroDocumento string, NumeroDocumentoFiscal string, NumeroPedido string) (sql.Result, error) {
+	var count int
+	err := db.QueryRow("SELECT COUNT(1) FROM amm_contas_omie_x_agenda WHERE  numero_os = ?", NumeroPedido).Scan(&count)
+	if err != nil {
+		log.Printf("Erro ao verificar se o registro existe: %v", err)
+		return nil, err
+	}
+	var insertDb sql.Result
+	if count == 0 {
+		insertDb, err = db.Exec("INSERT INTO amm_contas_omie_x_agenda (id_cliente, id_conta_omie, numero_nf, numero_rps, numero_os) VALUES (?, ?, ?, ?, ?)", CodigoCliente, CodigoConta, NumeroDocumentoFiscal, NumeroDocumento, NumeroPedido)
+	} else {
+		insertDb, err = db.Exec("UPDATE amm_contas_omie_x_agenda SET id_cliente = ?, id_conta_omie = ?, numero_nf = ?, numero_rps = ?, numero_os = ? WHERE  numero_os = ?", CodigoCliente, CodigoConta, NumeroDocumentoFiscal, NumeroDocumento, NumeroPedido, NumeroPedido)
+	}
+	if err != nil {
+		log.Printf("Erro ao inserir conta a receber: %v", err)
+		return nil, err
+	}
+	return insertDb, nil
 }

@@ -11,10 +11,12 @@ type WebhookContaReceberResponseInclude struct {
 	CodigoConta           int64  `json:"codigo_lancamento_omie"`
 	NumeroDocumento       string `json:"numero_documento"`
 	NumeroDocumentoFiscal string `json:"numero_documento_fiscal"`
+	NumeroPedido          string `json:"numero_pedido"`
 }
 
 type WebhookOsIncluidaResponse struct {
 	CodigoIntegra string `json:"codigoIntegracao"`
 	IdOs          int64  `json:"idOrdemServico"`
 	IdCliente     int64  `json:"idCliente"`
+	NumeroOs      string `json:"numeroOrdemServico"`
 }

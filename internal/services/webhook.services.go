@@ -24,17 +24,23 @@ func (s *OmieService) ProcessarWebhookOsFaturada(data models.WebhookOsFaturadaRe
 }
 
 func (s *OmieService) ProcessarWebhookContaReceber(data models.WebhookContaReceberResponseInclude) (int, error) {
-	fmt.Printf("Processando webhook de conta a receber incluída: Código Cliente: %s, Código Conta: %f, Número Documento: %s, Número Documento Fiscal: %s\n",
-		data.CodigoCliente, data.CodigoConta, data.NumeroDocumento, data.NumeroDocumentoFiscal)
-	time.Sleep(time.Second * 1)
+	fmt.Printf("Processando webhook de conta a receber incluída: Código Cliente: %s, Código Conta: %f, Número Documento: %s, Número Documento Fiscal: %s, Número Pedido: %s\n",
+		data.CodigoCliente, data.CodigoConta, data.NumeroDocumento, data.NumeroDocumentoFiscal, data.NumeroPedido)
+	dbInsertContaReceber, err := repositories.WebhookInsertContaReceber(database.ConnectToDB(), data.CodigoCliente, data.CodigoConta, data.NumeroDocumento, data.NumeroDocumentoFiscal, data.NumeroPedido)
+	if err != nil {
+		fmt.Printf("Erro ao inserir conta a receber: %s\n", err.Error())
+	} else {
+		rowsAffected, _ := dbInsertContaReceber.RowsAffected()
+		fmt.Printf("\033[32mConta a receber inserida com sucesso. Linhas afetadas: %d\033[0m\n", rowsAffected)
+	}
 	return http.StatusOK, nil
 }
 
 func (s *OmieService) ProcessarWebhookOsIncluida(data models.WebhookOsIncluidaResponse) (int, error) {
 	db := database.ConnectToDB()
 
-	fmt.Printf("Processando webhook de OS incluída: Código Integração: %s, ID OS: %d, ID Cliente: %d\n", data.CodigoIntegra, data.IdOs, data.IdCliente)
-	dbUpdt, err := repositories.WebhookUpdateOsIncluida(db, fmt.Sprintf("%d", data.IdOs), data.CodigoIntegra)
+	fmt.Printf("Processando webhook de OS incluída: Código Integração: %s, ID OS: %d, ID Cliente: %d, Número OS: %s\n", data.CodigoIntegra, data.IdOs, data.IdCliente, data.NumeroOs)
+	dbUpdt, err := repositories.WebhookUpdateOsIncluida(db, fmt.Sprintf("%d", data.IdOs), data.CodigoIntegra, data.NumeroOs)
 	if err != nil {
 		fmt.Printf("Erro ao atualizar OS incluída: %s\n", err.Error())
 	} else {
