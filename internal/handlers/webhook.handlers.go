@@ -29,12 +29,16 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 		"timestamp": time.Now(),
 		"body":      body,
 	})
+
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(400, gin.H{"error": "Invalid JSON"})
 		return
 	}
 
 	switch body["topic"] {
+	case "Financas.ContaReceber.BoletoGerado":
+		fmt.Println("Boleto gerado")
+		c.JSON(http.StatusOK, gin.H{"message": "Webhook de boleto gerado recebido"})
 	case "Financas.ContaReceber.Incluido":
 		fmt.Println("Conta a receber incluída")
 		codigoCliente := body["event"].(map[string]interface{})["codigo_cliente_fornecedor"]
@@ -94,7 +98,31 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 			return
 		}
 		c.JSON(http.StatusAccepted, gin.H{"status": "enfileirado"})
-
+	case "OrdemServico.Alterada":
+		fmt.Println("Ordem de serviço alterada")
+		c.JSON(http.StatusOK, gin.H{"message": "Webhook de ordem de serviço alterada recebido"})
+	case "NFSe.NotaAutorizada":
+		fmt.Println("Nota fiscal de serviço autorizada")
+		c.JSON(http.StatusOK, gin.H{"message": "Webhook de nota fiscal de serviço autorizada recebido"})
+	case "OrdemServico.EtapaAlterada":
+		fmt.Println("Ordem de serviço etapa alterada")
+		c.JSON(http.StatusOK, gin.H{"message": "Webhook de ordem de serviço etapa alterada recebido"})
+	case "Financas.ContaReceber.Excluido":
+		fmt.Println("Conta a receber excluída")
+		c.JSON(http.StatusOK, gin.H{"message": "Webhook de conta a receber excluída recebido"})
+	case "NFSe.NotaCancelada":
+		fmt.Println("Nota fiscal de serviço cancelada")
+		c.JSON(http.StatusOK, gin.H{"message": "Webhook de nota fiscal de serviço cancelada recebido"})
+	case "NFSe.NotaSubstituida":
+		fmt.Println("Nota fiscal de serviço substituída")
+		c.JSON(http.StatusOK, gin.H{"message": "Webhook de nota fiscal de serviço substituída recebido"})
+	case "OrdemServico.Cancelada":
+		fmt.Println("Ordem de serviço cancelada")
+		c.JSON(http.StatusOK, gin.H{"message": "Webhook de ordem de serviço cancelada recebido"})
+	case "OrdemServico.Excluida":
+		fmt.Println("Ordem de serviço excluída")
+		c.JSON(http.StatusOK, gin.H{"message": "Webhook de ordem de serviço excluída recebido"})
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Webhook recebido com sucesso"})
+
 }

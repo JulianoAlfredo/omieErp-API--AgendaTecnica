@@ -75,7 +75,7 @@ func (s *OmieService) CriarOrdemServico(req models.OrdemServicoRequest) (string,
 	fmt.Println("Status:", resp.Status)
 	fmt.Println("Resposta:", string(body))
 
-	return "Cliente cadastrado com sucesso", nil
+	return "OS cadastrado com sucesso", nil
 }
 func (s *OmieService) ListarOrdemServico() (string, error) {
 	url := s.BaseURL + "/api/v1/servicos/os/"
