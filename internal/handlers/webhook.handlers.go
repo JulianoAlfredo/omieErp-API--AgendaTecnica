@@ -23,6 +23,7 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 	var responseOsFaturada models.WebhookOsFaturadaResponse
 	var responseContaReceber models.WebhookContaReceberResponseInclude
 	var responseOsIncluida models.WebhookOsIncluidaResponse
+	var responseBoletoGerado models.WebhookBoletoGeradoResponse
 
 	fmt.Println("SIMULA salvamento banco: ", map[string]interface{}{
 		"tipo":      body["topic"],
@@ -36,9 +37,7 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 	}
 
 	switch body["topic"] {
-	case "Financas.ContaReceber.BoletoGerado":
-		fmt.Println("Boleto gerado")
-		c.JSON(http.StatusOK, gin.H{"message": "Webhook de boleto gerado recebido"})
+
 	case "Financas.ContaReceber.Incluido":
 		fmt.Println("Conta a receber incluída")
 		codigoCliente := body["event"].(map[string]interface{})["codigo_cliente_fornecedor"]
@@ -102,6 +101,7 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 			return
 		}
 		c.JSON(http.StatusAccepted, gin.H{"status": "enfileirado"})
+
 	case "OrdemServico.Alterada":
 		fmt.Println("Ordem de serviço alterada")
 		c.JSON(http.StatusOK, gin.H{"message": "Webhook de ordem de serviço alterada recebido"})
@@ -126,6 +126,30 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 	case "OrdemServico.Excluida":
 		fmt.Println("Ordem de serviço excluída")
 		c.JSON(http.StatusOK, gin.H{"message": "Webhook de ordem de serviço excluída recebido"})
+	case "Financas.ContaReceber.BoletoGerado":
+		fmt.Println("Boleto gerado")
+		codigoConta := body["event"].(map[string]interface{})["codigo_lancamento_omie"]
+		idCliente := body["event"].(map[string]interface{})["codigo_cliente_fornecedor"]
+		codigoBarras := body["event"].(map[string]interface{})["codigo_barras_ficha_compensacao"]
+		BoletoGerado := body["event"].(map[string]interface{})["boleto_gerado"]
+		numeroOs := body["event"].(map[string]interface{})["numero_pedido"]
+		BoletoNumero := body["event"].(map[string]interface{})["boleto_numero"]
+
+		responseBoletoGerado.CodigoConta = int64(codigoConta.(float64))
+		responseBoletoGerado.NumeroPedido = fmt.Sprintf("%v", numeroOs)
+		responseBoletoGerado.CodigoCliente = int64(idCliente.(float64))
+		responseBoletoGerado.BoletoGerado = fmt.Sprintf("%v", BoletoGerado)
+		responseBoletoGerado.CodigoBarras = fmt.Sprintf("%v", codigoBarras)
+		responseBoletoGerado.BoletoNumero = fmt.Sprintf("%v", BoletoNumero)
+		err := h.workerPool.Enqueue(workers.WebhookJob{
+			Tipo:         workers.JobBoletoGerado,
+			BoletoGerado: &responseBoletoGerado,
+		})
+		if err != nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"erro": "fila cheia, tente novamente"})
+			return
+		}
+		c.JSON(http.StatusAccepted, gin.H{"status": "enfileirado"})
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Webhook recebido com sucesso"})
 

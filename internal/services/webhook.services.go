@@ -6,8 +6,20 @@ import (
 	"example/web-service-gin/internal/repositories"
 	"fmt"
 	"net/http"
-	"time"
 )
+
+func (s *OmieService) ProcessarWebhookBoletoGerado(data models.WebhookBoletoGeradoResponse) (int, error) {
+	fmt.Printf("Processando webhook de boleto gerado: Código Cliente: %d, Código Conta: %d, Número Pedido: %s, Boleto Gerado: %s, Código de Barras: %s, Boleto Número: %s\n",
+		data.CodigoCliente, data.CodigoConta, data.NumeroPedido, data.BoletoGerado, data.CodigoBarras, data.BoletoNumero)
+	dbInsertBoletoGerado, err := repositories.WebhookInsertBoletoGerado(database.ConnectToDB(), data.CodigoCliente, data.CodigoConta, data.NumeroPedido, data.BoletoGerado, data.CodigoBarras, data.BoletoNumero)
+	if err != nil {
+		fmt.Printf("Erro ao inserir boleto gerado: %s\n", err.Error())
+	} else {
+		rowsAffected, _ := dbInsertBoletoGerado.RowsAffected()
+		fmt.Printf("\033[32mBoleto gerado inserido com sucesso. Linhas afetadas: %d\033[0m\n", rowsAffected)
+	}
+	return http.StatusOK, nil
+}
 
 func (s *OmieService) ProcessarWebhookOsFaturada(data models.WebhookOsFaturadaResponse) (int, error) {
 	fmt.Printf("Processando webhook de OS faturada: Número OS: %s, Código Integração: %s, ID OS: %d\n", data.NumeroOS, data.CodigoIntegra, data.IdOs)
@@ -18,7 +30,6 @@ func (s *OmieService) ProcessarWebhookOsFaturada(data models.WebhookOsFaturadaRe
 		rowsAffected, _ := dbUpdt.RowsAffected()
 		fmt.Printf("\033[32mOS faturada atualizada com sucesso. Linhas afetadas: %d\033[0m\n", rowsAffected)
 	}
-	time.Sleep(time.Second * 1)
 
 	return http.StatusOK, nil
 }

@@ -20,3 +20,14 @@ type WebhookOsIncluidaResponse struct {
 	IdCliente     int64  `json:"idCliente"`
 	NumeroOs      string `json:"numeroOrdemServico"`
 }
+
+type WebhookBoletoGeradoResponse struct {
+	CodigoCliente         int64  `json:"codigo_cliente_fornecedor"`
+	CodigoConta           int64  `json:"codigo_lancamento_omie"`
+	NumeroDocumento       string `json:"numero_documento"`
+	NumeroDocumentoFiscal string `json:"numero_documento_fiscal"`
+	NumeroPedido          string `json:"numero_pedido"`
+	BoletoGerado          string `json:"boleto_gerado"`
+	CodigoBarras          string `json:"codigo_barras_ficha_compensacao"`
+	BoletoNumero          string `json:"boleto_numero"`
+}
