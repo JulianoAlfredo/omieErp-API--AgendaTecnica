@@ -35,9 +35,35 @@ func SearchClients(db *sql.DB, idClient string) []map[string]any {
 }
 
 func WebhookUpdateOsIncluida(db *sql.DB, idOs string, CodigoIntegra string) (sql.Result, error) {
+	var count int
+	err := db.QueryRow("SELECT COUNT(1) FROM amm_contas_omie_x_agenda WHERE id_conta_agenda = ?", CodigoIntegra).Scan(&count)
+	if err != nil {
+		log.Printf("Erro ao verificar se o registro existe: %v", err)
+		return nil, err
+	}
+	if count == 0 {
+		insertDb, err := db.Exec("INSERT INTO amm_contas_omie_x_agenda (id_conta_agenda, id_os) VALUES (?, ?)", CodigoIntegra, idOs)
+		if err != nil {
+			log.Printf("Erro ao inserir novo registro: %v", err)
+			return nil, err
+		} else {
+			rowsAffected, _ := insertDb.RowsAffected()
+			log.Printf("Novo registro inserido com sucesso. Linhas afetadas: %d", rowsAffected)
+			return insertDb, nil
+		}
+	}
 	result, err := db.Exec("UPDATE amm_contas_omie_x_agenda SET id_os = ? WHERE id_conta_agenda = ?", idOs, CodigoIntegra)
 	if err != nil {
-		log.Printf("Error updating database: %v", err)
+		log.Printf("Erro ao atualizar o banco de dados: %v", err)
+		return nil, err
+	}
+	return result, nil
+}
+
+func WebhookUpdateOsFaturada(db *sql.DB, idOs string, CodigoIntegra string) (sql.Result, error) {
+	result, err := db.Exec("UPDATE amm_contas_omie_x_agenda SET faturada = 1 WHERE  id_os = ?", idOs)
+	if err != nil {
+		log.Printf("Erro ao atualizar o banco de dados: %v", err)
 		return nil, err
 	}
 	return result, err
