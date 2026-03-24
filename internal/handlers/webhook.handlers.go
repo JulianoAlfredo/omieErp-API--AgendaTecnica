@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"example/web-service-gin/internal/models"
+	"example/web-service-gin/internal/services"
 	"example/web-service-gin/internal/workers"
 	"fmt"
 	"net/http"
@@ -51,6 +52,7 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 		responseContaReceber.NumeroDocumento = numeroDocumento.(string)
 		responseContaReceber.NumeroDocumentoFiscal = numeroDocumentoFiscal.(string)
 		responseContaReceber.NumeroPedido = numeroPedido.(string)
+		services.GetOrquestrador().NotificarContaReceber(responseContaReceber)
 		err := h.workerPool.Enqueue(workers.WebhookJob{
 			Tipo:         workers.JobContaReceber,
 			ContaReceber: &responseContaReceber,
@@ -91,7 +93,7 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 		responseOsIncluida.IdOs = int64(idOs.(float64))
 		responseOsIncluida.IdCliente = int64(idCliente.(float64))
 		responseOsIncluida.NumeroOs = fmt.Sprintf("%v", numeroOs)
-
+		services.GetOrquestrador().NotificarOsIncluida(responseOsIncluida)
 		err := h.workerPool.Enqueue(workers.WebhookJob{
 			Tipo:       workers.JobOsIncluida,
 			OsIncluida: &responseOsIncluida,
@@ -141,6 +143,7 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 		responseBoletoGerado.BoletoGerado = fmt.Sprintf("%v", BoletoGerado)
 		responseBoletoGerado.CodigoBarras = fmt.Sprintf("%v", codigoBarras)
 		responseBoletoGerado.BoletoNumero = fmt.Sprintf("%v", BoletoNumero)
+		services.GetOrquestrador().NotificarBoletoGerado(responseBoletoGerado)
 		err := h.workerPool.Enqueue(workers.WebhookJob{
 			Tipo:         workers.JobBoletoGerado,
 			BoletoGerado: &responseBoletoGerado,

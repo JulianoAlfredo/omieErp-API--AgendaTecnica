@@ -38,6 +38,7 @@ func main() {
 	workerPool := workers.NewWebhookWorkerPool(omieService, 5, 100)
 	defer workerPool.Shutdown()
 	webhookHandler := handlers.NewWebhookHandler(workerPool)
+	faturamentoCompletoHandler := handlers.NewFaturamentoCompletoHandler(omieService)
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
@@ -65,6 +66,7 @@ func main() {
 	router.POST("/consultarContaReceber", contaReceberHandler.ConsultarConta)
 	router.POST("/gerarBoletoConta", contaReceberHandler.GerarBoletoConta)
 	router.POST("/webhook", webhookHandler.ReceberWebhook)
+	router.POST("/criarFaturamentoCompleto", faturamentoCompletoHandler.CriarFaturamentoCompleto)
 
 	fmt.Println("Rodando na porta 8080")
 	fmt.Println(os.Getenv("PORT"))

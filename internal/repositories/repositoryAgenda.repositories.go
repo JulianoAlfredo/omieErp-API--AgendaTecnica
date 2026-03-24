@@ -33,7 +33,6 @@ func SearchClients(db *sql.DB, idClient string) []map[string]any {
 	}
 	return employees
 }
-
 func WebhookUpdateOsIncluida(db *sql.DB, idOs string, CodigoIntegra string, NumeroOs string) (sql.Result, error) {
 	var count int
 	err := db.QueryRow("SELECT COUNT(1) FROM amm_contas_omie_x_agenda WHERE id_conta_agenda = ?", CodigoIntegra).Scan(&count)

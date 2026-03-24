@@ -1,0 +1,14 @@
+CREATE TABLE amm_contas_omie_x_agenda (
+    id_conta_agenda VARCHAR(255) NULL,
+    id_os FLOAT NULL,
+    id_conta_omie FLOAT NULL,
+    faturada INT NULL,
+    boleto_gerado VARCHAR(100) NULL,
+    id_nf INT NULL,
+    numero_nf VARCHAR(255) NULL,
+    numero_rps VARCHAR(255) NULL,
+    numero_os VARCHAR(100) NULL,
+    id_cliente FLOAT NULL,
+    codigo_barras_boleto VARCHAR(255) NULL,
+    boleto_numero VARCHAR(255) NULL
+);
