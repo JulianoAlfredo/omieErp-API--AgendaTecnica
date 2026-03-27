@@ -105,3 +105,23 @@ func WebhookInsertBoletoGerado(db *sql.DB, CodigoCliente int64, CodigoConta int6
 	}
 	return insertDb, nil
 }
+
+func InsertLinkBoletoGerado(db *sql.DB, CodigoConta int64, LinkBoletoGerado string) (sql.Result, error) {
+	var count int
+	err := db.QueryRow("SELECT COUNT(1) FROM amm_contas_omie_x_agenda WHERE  id_conta_omie = ?", CodigoConta).Scan(&count)
+	if err != nil {
+		log.Printf("Erro ao verificar se o registro existe: %v", err)
+		return nil, err
+	}
+	var insertDb sql.Result
+	if count == 0 {
+		insertDb, err = db.Exec("INSERT INTO amm_contas_omie_x_agenda (link_boleto) VALUES (?)", LinkBoletoGerado)
+	} else {
+		insertDb, err = db.Exec("UPDATE amm_contas_omie_x_agenda SET link_boleto = ? WHERE id_conta_omie = ?", LinkBoletoGerado, CodigoConta)
+	}
+	if err != nil {
+		log.Printf("Erro ao inserir link do boleto gerado: %v", err)
+		return nil, err
+	}
+	return insertDb, nil
+}

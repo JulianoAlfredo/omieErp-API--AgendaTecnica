@@ -9,3 +9,7 @@ type GerarBoletoConta struct {
 	NCodTitulo    int64  `json:"nCodTitulo" binding:"required"`
 	CCodIntTitulo string `json:"cCodIntTitulo"`
 }
+
+type ConsultaBoletoGerado struct {
+	NCodTitulo int64 `json:"nCodTitulo" binding:"required"`
+}

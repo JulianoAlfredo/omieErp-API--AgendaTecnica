@@ -2,7 +2,9 @@ package services
 
 import (
 	"encoding/json"
+	"example/web-service-gin/internal/database"
 	"example/web-service-gin/internal/models"
+	"example/web-service-gin/internal/repositories"
 	"fmt"
 	"io"
 	"net/http"
@@ -120,5 +122,51 @@ func (s *OmieService) GerarBoletoConta(req models.GerarBoletoConta) (map[string]
 		return map[string]any{"erro": err.Error()}, err
 	}
 
+	return result, nil
+}
+func (s *OmieService) ConsultarBoletoGerado(req models.ConsultaBoletoGerado) (map[string]any, error) {
+	url := s.BaseURL + "/api/v1/financas/contareceberboleto/"
+	payloadObj := map[string]any{
+		"call": "ObterBoleto",
+		"param": []map[string]any{
+			{
+				"nCodTitulo": req.NCodTitulo,
+			},
+		},
+		"app_key":    s.AppKey,
+		"app_secret": s.AppSecret,
+	}
+
+	payloadBytes, err := json.Marshal(payloadObj)
+	if err != nil {
+		return map[string]any{"erro": err.Error()}, err
+	}
+	httpReq, err := http.NewRequest("POST", url, strings.NewReader(string(payloadBytes)))
+	if err != nil {
+		return map[string]any{"erro": err.Error()}, err
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+	resp, err := (&http.Client{}).Do(httpReq)
+	if err != nil {
+
+		return map[string]any{"erro": err.Error()}, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return map[string]any{"erro": err.Error()}, err
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return map[string]any{"erro": fmt.Sprintf("omie retornou status %d: %s", resp.StatusCode, string(body))}, fmt.Errorf("omie retornou status %d: %s", resp.StatusCode, string(body))
+	}
+
+	var result map[string]any
+	if err := json.Unmarshal(body, &result); err != nil {
+		return map[string]any{"erro": err.Error()}, err
+	}
+	fmt.Println(result)
+	_, err = repositories.InsertLinkBoletoGerado(database.ConnectToDB(), req.NCodTitulo, result["cLinkBoleto"].(string))
 	return result, nil
 }

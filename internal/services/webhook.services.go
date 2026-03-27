@@ -17,6 +17,8 @@ func (s *OmieService) ProcessarWebhookBoletoGerado(data models.WebhookBoletoGera
 	} else {
 		rowsAffected, _ := dbInsertBoletoGerado.RowsAffected()
 		fmt.Printf("\033[32mBoleto gerado inserido com sucesso. Linhas afetadas: %d\033[0m\n", rowsAffected)
+
+		s.ConsultarBoletoGerado(models.ConsultaBoletoGerado{NCodTitulo: data.CodigoConta})
 	}
 	return http.StatusOK, nil
 }

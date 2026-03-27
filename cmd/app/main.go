@@ -65,6 +65,7 @@ func main() {
 	router.GET("/listarContasReceber", contaReceberHandler.ListarContasReceber)
 	router.POST("/consultarContaReceber", contaReceberHandler.ConsultarConta)
 	router.POST("/gerarBoletoConta", contaReceberHandler.GerarBoletoConta)
+	router.POST("/consultarBoletoGerado", contaReceberHandler.ConsultarBoletoGerado)
 	router.POST("/webhook", webhookHandler.ReceberWebhook)
 	router.POST("/criarFaturamentoCompleto", faturamentoCompletoHandler.CriarFaturamentoCompleto)
 
