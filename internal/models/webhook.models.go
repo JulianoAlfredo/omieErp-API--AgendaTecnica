@@ -31,3 +31,12 @@ type WebhookBoletoGeradoResponse struct {
 	CodigoBarras          string `json:"codigo_barras_ficha_compensacao"`
 	BoletoNumero          string `json:"boleto_numero"`
 }
+
+type WebhookNfseAutorizadaResponse struct {
+	NumeroOs    string `json:"numero_os"`
+	NumeroRps   string `json:"numero_rps"`
+	NFseXML     string `json:"nfse_xml"`
+	CodigoOs    string `json:"codigo_os"`
+	CodigoNf    string `json:"id_nf"`
+	DataEmissao string `json:"data_emis"`
+}

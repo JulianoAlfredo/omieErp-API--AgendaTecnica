@@ -25,6 +25,7 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 	var responseContaReceber models.WebhookContaReceberResponseInclude
 	var responseOsIncluida models.WebhookOsIncluidaResponse
 	var responseBoletoGerado models.WebhookBoletoGeradoResponse
+	var responseNfseAutorizada models.WebhookNfseAutorizadaResponse
 
 	fmt.Println("SIMULA salvamento banco: ", map[string]interface{}{
 		"tipo":      body["topic"],
@@ -36,7 +37,7 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "Invalid JSON"})
 		return
 	}
-
+	fmt.Println("Webhook recebido", body["topic"])
 	switch body["topic"] {
 
 	case "Financas.ContaReceber.Incluido":
@@ -110,6 +111,30 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 	case "NFSe.NotaAutorizada":
 		fmt.Println("Nota fiscal de serviço autorizada")
 		c.JSON(http.StatusOK, gin.H{"message": "Webhook de nota fiscal de serviço autorizada recebido"})
+
+		xmlNfe := body["event"].(map[string]interface{})["nfse_xml"]
+		numeroOs := body["event"].(map[string]interface{})["numero_os"]
+		numeroRps := body["event"].(map[string]interface{})["numero_rps"]
+		codigoOs := body["event"].(map[string]interface{})["codigo_os"]
+		codigoNf := body["event"].(map[string]interface{})["id_nf"]
+		dataEmissao := body["event"].(map[string]interface{})["data_emis"]
+
+		responseNfseAutorizada.NumeroOs = fmt.Sprintf("%v", numeroOs)
+		responseNfseAutorizada.NumeroRps = fmt.Sprintf("%v", numeroRps)
+		responseNfseAutorizada.NFseXML = fmt.Sprintf("%v", xmlNfe)
+		responseNfseAutorizada.CodigoOs = fmt.Sprintf("%v", codigoOs)
+		responseNfseAutorizada.CodigoNf = fmt.Sprintf("%v", codigoNf)
+		responseNfseAutorizada.DataEmissao = fmt.Sprintf("%v", dataEmissao)
+		err := h.workerPool.Enqueue(workers.WebhookJob{
+			Tipo:           workers.JobNfseAutorizada,
+			NfseAutorizada: &responseNfseAutorizada,
+		})
+		if err != nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"erro": "fila cheia, tente novamente"})
+			return
+		}
+		c.JSON(http.StatusAccepted, gin.H{"status": "enfileirado"})
+
 	case "OrdemServico.EtapaAlterada":
 		fmt.Println("Ordem de serviço etapa alterada")
 		c.JSON(http.StatusOK, gin.H{"message": "Webhook de ordem de serviço etapa alterada recebido"})
@@ -155,5 +180,4 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 		c.JSON(http.StatusAccepted, gin.H{"status": "enfileirado"})
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Webhook recebido com sucesso"})
-
 }
