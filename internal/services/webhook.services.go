@@ -65,6 +65,5 @@ func (s *OmieService) ProcessarWebhookOsIncluida(data models.WebhookOsIncluidaRe
 
 func (s *OmieService) ProcessarWebhookNfseAutorizada(data models.WebhookNfseAutorizadaResponse) (int, error) {
 	fmt.Printf("Processando webhook de NFSe autorizada: Número OS: %s, Número RPS: %s, Código OS: %s, Código NF: %s, Data Emissão: %s\n", data.NumeroOs, data.NumeroRps, data.CodigoOs, data.CodigoNf, data.DataEmissao)
-	// Aqui você pode implementar a lógica para salvar os dados da NFSe autorizada no banco de dados ou realizar outras ações necessárias
 	return http.StatusOK, nil
 }
