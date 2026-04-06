@@ -3,6 +3,7 @@ package handlers
 import (
 	"example/web-service-gin/internal/models"
 	"example/web-service-gin/internal/services"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -53,6 +54,7 @@ func (h *ContaReceberHandler) GerarBoletoConta(c *gin.Context) {
 	}
 
 	resultado, err := h.omieService.GerarBoletoConta(req)
+	fmt.Println("Resultado do boleto gerado:", resultado)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
