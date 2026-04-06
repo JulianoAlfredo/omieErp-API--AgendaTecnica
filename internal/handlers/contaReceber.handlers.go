@@ -54,13 +54,19 @@ func (h *ContaReceberHandler) GerarBoletoConta(c *gin.Context) {
 	}
 
 	resultado, err := h.omieService.GerarBoletoConta(req)
-	fmt.Println("Resultado do boleto gerado:", resultado)
+	fmt.Println(resultado)
+	if resultado["cNumBoleto"] != "" && resultado["cNumBoleto"] != nil {
+		c.JSON(http.StatusOK, resultado)
+		fmt.Println("Boleto gerado com sucesso! Número do boleto:", resultado["cNumBoleto"])
+	} else {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "falha ao gerar boleto", "cod_stautus": resultado["cod_status"], "msg_status": resultado["cDesStatus"]})
+
+	}
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, resultado)
 }
 
 func (h *ContaReceberHandler) ConsultarBoletoGerado(c *gin.Context) {
