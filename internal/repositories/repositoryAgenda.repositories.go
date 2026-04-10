@@ -58,6 +58,51 @@ func WebhookUpdateOsIncluida(db *sql.DB, idOs string, CodigoIntegra string, Nume
 	}
 	return result, nil
 }
+
+func CriarTabelaRelacaoClientes(db *sql.DB) error {
+	query := `
+	
+	CREATE TABLE IF NOT EXISTS amm_omie_relaciona_clientes (
+		cliente_agenda NVARCHAR(200),
+		cliente_omie   BIGINT,
+		cnpj           NVARCHAR(30)
+	)`
+	_, err := db.Exec(query)
+	if err != nil {
+		log.Printf("Erro ao criar tabela amm_omie_relaciona_clientes: %v", err)
+		return err
+	}
+	return nil
+}
+
+func UpsertRelacaoCliente(db *sql.DB, clienteAgenda string, clienteOmie int64, cnpj string) error {
+	var count int
+	err := db.QueryRow("SELECT COUNT(1) FROM amm_omie_relaciona_clientes WHERE cliente_agenda = ?", clienteAgenda).Scan(&count)
+	if err != nil {
+		log.Printf("Erro ao verificar relacao cliente %s: %v", clienteAgenda, err)
+		return err
+	}
+	if count == 0 {
+		_, err = db.Exec(
+			"INSERT INTO amm_omie_relaciona_clientes (cliente_agenda, cliente_omie, cnpj) VALUES (?, ?, ?)",
+			clienteAgenda, clienteOmie, cnpj,
+		)
+		if err != nil {
+			log.Printf("Erro ao inserir relacao cliente %s: %v", clienteAgenda, err)
+			return err
+		}
+	} else {
+		_, err = db.Exec(
+			"UPDATE amm_omie_relaciona_clientes SET cliente_omie = ?, cnpj = ? WHERE cliente_agenda = ?",
+			clienteOmie, cnpj, clienteAgenda,
+		)
+		if err != nil {
+			log.Printf("Erro ao atualizar relacao cliente %s: %v", clienteAgenda, err)
+			return err
+		}
+	}
+	return nil
+}
 func WebhookUpdateOsFaturada(db *sql.DB, idOs string, CodigoIntegra string) (sql.Result, error) {
 	result, err := db.Exec("UPDATE amm_contas_omie_x_agenda SET faturada = 1 WHERE  id_os = ?", idOs)
 	if err != nil {

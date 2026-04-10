@@ -3,6 +3,7 @@ package handlers
 import (
 	"example/web-service-gin/internal/models"
 	"example/web-service-gin/internal/services"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,7 @@ func (h *FaturamentoCompletoHandler) CriarFaturamentoCompleto(c *gin.Context) {
 	resultado, err := h.omieService.CriarFaturamentoCompleto(req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println(err.Error())
 		return
 	}
 

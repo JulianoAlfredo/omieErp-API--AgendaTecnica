@@ -114,7 +114,7 @@ func (s *OmieService) CriarFaturamentoCompleto(req models.OrdemServicoRequest) (
 	fluxo := orq.registrar(codIntOS)
 	defer orq.remover(codIntOS)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Minute)
 	defer cancel()
 
 	fmt.Printf("[FaturamentoCompleto] Criando OS: %s\n", codIntOS)

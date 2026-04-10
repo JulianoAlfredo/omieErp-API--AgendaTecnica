@@ -70,14 +70,15 @@ func main() {
 	router.POST("/consultarBoletoGerado", contaReceberHandler.ConsultarBoletoGerado)
 	router.POST("/webhook", webhookHandler.ReceberWebhook)
 	router.POST("/criarFaturamentoCompleto", faturamentoCompletoHandler.CriarFaturamentoCompleto)
-
+	router.POST("/consultarCliente", clienteHandler.ListarClientes)
 	router.GET("/listarContasCorrente", contaCorrenteHandler.ListarContasCorrente)
+
+	router.GET("/sincronizarClientes", clienteHandler.SincronizarClientes)
 
 	fmt.Println("Rodando na porta 8080")
 	fmt.Println(os.Getenv("PORT"))
-	port := os.Getenv("PORT")
 
-	if err := router.Run(":" + port); err != nil {
+	if err := router.Run(":" + "8080"); err != nil {
 		log.Fatal(err)
 	}
 }

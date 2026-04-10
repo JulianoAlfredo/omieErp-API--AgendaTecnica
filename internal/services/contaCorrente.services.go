@@ -29,7 +29,7 @@ func (s *OmieService) ListarContasCorrente() ([]models.ContaCorrente, error) {
 				"app_key": "` + s.AppKey + `",
 				"app_secret": "` + s.AppSecret + `"
 		}`)
-	httpReq, err := http.NewRequest("POST", url, payload)
+	httpReq, err := http.NewRequest("GET", url, payload)
 	if err != nil {
 		return nil, err
 	}
