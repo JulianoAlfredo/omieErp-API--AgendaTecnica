@@ -171,3 +171,84 @@ func (s *OmieService) CriarFaturamentoCompleto(req models.OrdemServicoRequest) (
 		"resultado_omie": resultadoBoleto,
 	}, nil
 }
+func (s *OmieService) CriarFaturamentoCompletoStream(req models.OrdemServicoRequest, progressCh chan<- models.FaturamentoProgresso) {
+	defer close(progressCh)
+
+	enviar := func(etapa string, dados any, erro string) {
+		progressCh <- models.FaturamentoProgresso{Etapa: etapa, Dados: dados, Erro: erro}
+	}
+
+	codIntOS := req.Cabecalho.CCodIntOS
+
+	orq := GetOrquestrador()
+	fluxo := orq.registrar(codIntOS)
+	defer orq.remover(codIntOS)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Minute)
+	defer cancel()
+
+	enviar("criando_os", nil, "")
+	fmt.Printf("[FaturamentoCompleto] Criando OS: %s\n", codIntOS)
+	if _, err := s.CriarOrdemServico(req); err != nil {
+		enviar("erro", nil, fmt.Sprintf("erro ao criar OS: %s", err.Error()))
+		return
+	}
+
+	enviar("aguardando_os_incluida", nil, "")
+	fmt.Println("[FaturamentoCompleto] Aguardando webhook OrdemServico.Incluida...")
+	var osIncluida models.WebhookOsIncluidaResponse
+	select {
+	case osIncluida = <-fluxo.OsIncluida:
+		fmt.Printf("[FaturamentoCompleto] OS incluída — nCodOS: %d, numeroOs: %s\n", osIncluida.IdOs, osIncluida.NumeroOs)
+		enviar("os_incluida", osIncluida, "")
+	case <-ctx.Done():
+		enviar("erro", nil, "timeout aguardando webhook OrdemServico.Incluida")
+		return
+	}
+
+	enviar("faturando_os", nil, "")
+	fmt.Printf("[FaturamentoCompleto] Faturando OS: %d\n", osIncluida.IdOs)
+	if _, err := s.FaturarOrdemServico(models.FaturaOrdemServicoRequest{NCodOS: int(osIncluida.IdOs)}); err != nil {
+		enviar("erro", nil, fmt.Sprintf("erro ao faturar OS: %s", err.Error()))
+		return
+	}
+
+	enviar("aguardando_conta_receber", nil, "")
+	fmt.Println("[FaturamentoCompleto] Aguardando webhook Financas.ContaReceber.Incluido...")
+	var contaReceber models.WebhookContaReceberResponseInclude
+	select {
+	case contaReceber = <-fluxo.ContaReceber:
+		fmt.Printf("[FaturamentoCompleto] Conta a receber incluída — CodigoConta: %d\n", contaReceber.CodigoConta)
+		enviar("conta_receber_incluida", contaReceber, "")
+	case <-ctx.Done():
+		enviar("erro", nil, "timeout aguardando webhook Financas.ContaReceber.Incluido")
+		return
+	}
+
+	enviar("gerando_boleto", nil, "")
+	fmt.Printf("[FaturamentoCompleto] Gerando boleto para conta: %d\n", contaReceber.CodigoConta)
+	resultadoBoleto, err := s.GerarBoletoConta(models.GerarBoletoConta{NCodTitulo: contaReceber.CodigoConta})
+	if err != nil {
+		enviar("erro", nil, fmt.Sprintf("erro ao gerar boleto: %s", err.Error()))
+		return
+	}
+
+	enviar("aguardando_boleto_gerado", nil, "")
+	fmt.Println("[FaturamentoCompleto] Aguardando webhook Financas.ContaReceber.BoletoGerado...")
+	var boletoGerado models.WebhookBoletoGeradoResponse
+	select {
+	case boletoGerado = <-fluxo.BoletoGerado:
+		fmt.Printf("[FaturamentoCompleto] Boleto gerado — CodigoBarras: %s\n", boletoGerado.CodigoBarras)
+		enviar("boleto_gerado", boletoGerado, "")
+	case <-ctx.Done():
+		enviar("erro", nil, "timeout aguardando webhook Financas.ContaReceber.BoletoGerado")
+		return
+	}
+
+	enviar("concluido", map[string]any{
+		"os_incluida":    osIncluida,
+		"conta_receber":  contaReceber,
+		"boleto_gerado":  boletoGerado,
+		"resultado_omie": resultadoBoleto,
+	}, "")
+}

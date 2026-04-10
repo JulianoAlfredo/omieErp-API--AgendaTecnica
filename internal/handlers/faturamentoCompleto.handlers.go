@@ -3,7 +3,7 @@ package handlers
 import (
 	"example/web-service-gin/internal/models"
 	"example/web-service-gin/internal/services"
-	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -24,12 +24,19 @@ func (h *FaturamentoCompletoHandler) CriarFaturamentoCompleto(c *gin.Context) {
 		return
 	}
 
-	resultado, err := h.omieService.CriarFaturamentoCompleto(req)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		fmt.Println(err.Error())
-		return
-	}
+	progressCh := make(chan models.FaturamentoProgresso, 10)
+	go h.omieService.CriarFaturamentoCompletoStream(req, progressCh)
 
-	c.JSON(http.StatusOK, resultado)
+	c.Header("Content-Type", "text/event-stream")
+	c.Header("Cache-Control", "no-cache")
+	c.Header("Connection", "keep-alive")
+	c.Header("X-Accel-Buffering", "no")
+
+	c.Stream(func(w io.Writer) bool {
+		if evento, ok := <-progressCh; ok {
+			c.SSEvent("progresso", evento)
+			return true
+		}
+		return false
+	})
 }

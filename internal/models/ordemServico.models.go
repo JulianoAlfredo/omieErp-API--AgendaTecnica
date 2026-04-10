@@ -1,5 +1,11 @@
 package models
 
+type FaturamentoProgresso struct {
+	Etapa string `json:"etapa"`
+	Dados any    `json:"dados,omitempty"`
+	Erro  string `json:"erro,omitempty"`
+}
+
 type OrdemServicoRequest struct {
 	Cabecalho struct {
 		CCodIntOS   string `json:"cCodIntOS"`
