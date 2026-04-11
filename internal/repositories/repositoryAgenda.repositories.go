@@ -181,7 +181,7 @@ func InserirLogFaturamento(db *sql.DB, codIntOS string, etapa string, status str
 		}
 	}
 	_, err := db.Exec(
-		`INSERT INTO amm_omie_faturamento_log (cod_int_os, etapa, status, mensagem, dados) VALUES (@p1, @p2, @p3, @p4, @p5)`,
+		`INSERT INTO amm_omie_faturamento_log (cod_int_os, etapa, status, mensagem, dados) VALUES (?, ?, ?, ?, ?)`,
 		codIntOS, etapa, status, mensagem, dadosJSON,
 	)
 	if err != nil {
