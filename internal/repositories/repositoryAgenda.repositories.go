@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"encoding/json"
 	"log"
 )
 
@@ -169,4 +170,22 @@ func InsertLinkBoletoGerado(db *sql.DB, CodigoConta int64, LinkBoletoGerado stri
 		return nil, err
 	}
 	return insertDb, nil
+}
+func InserirLogFaturamento(db *sql.DB, codIntOS string, etapa string, status string, mensagem string, dados any) error {
+	var dadosJSON *string
+	if dados != nil {
+		b, err := json.Marshal(dados)
+		if err == nil {
+			s := string(b)
+			dadosJSON = &s
+		}
+	}
+	_, err := db.Exec(
+		`INSERT INTO amm_omie_faturamento_log (cod_int_os, etapa, status, mensagem, dados) VALUES (@p1, @p2, @p3, @p4, @p5)`,
+		codIntOS, etapa, status, mensagem, dadosJSON,
+	)
+	if err != nil {
+		log.Printf("[FaturamentoLog] Erro ao inserir log (etapa=%s): %v", etapa, err)
+	}
+	return err
 }

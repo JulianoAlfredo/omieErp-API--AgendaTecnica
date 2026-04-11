@@ -1,4 +1,5 @@
-CREATE TABLE amm_contas_omie_x_agenda (
+CREATE TABLE amm_contas_omie_x_agenda
+(
     id_conta_agenda VARCHAR(255) NULL,
     id_os FLOAT NULL,
     id_conta_omie FLOAT NULL,
@@ -11,4 +12,15 @@ CREATE TABLE amm_contas_omie_x_agenda (
     id_cliente FLOAT NULL,
     codigo_barras_boleto VARCHAR(255) NULL,
     boleto_numero VARCHAR(255) NULL
+);
+
+CREATE TABLE amm_omie_faturamento_log
+(
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    cod_int_os VARCHAR(255) NOT NULL,
+    etapa VARCHAR(100) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    mensagem NVARCHAR(MAX) NULL,
+    dados NVARCHAR(MAX) NULL,
+    criado_em DATETIME NOT NULL DEFAULT GETDATE()
 );
