@@ -45,8 +45,10 @@ func (s *OmieService) CriarOrdemServico(req models.OrdemServicoRequest) (string,
 				"cEtapa": "` + req.Cabecalho.CEtapa + `",
 				"dDtPrevisao": "` + req.Cabecalho.DDtPrevisao + `",
 				"nCodCli": ` + fmt.Sprint(req.Cabecalho.NCodCli) + `,
-				"nQtdeParc": ` + fmt.Sprint(req.Cabecalho.NQtdeParc) + `
+				"nQtdeParc": ` + fmt.Sprint(req.Cabecalho.NQtdeParc) + `,
+				
 			},
+			"Parcelas": ` + fmt.Sprint(req.Cabecalho.NParcelas) + `,
 			"Departamentos": [],
 			"Email": ` + formatEmail(req.Email) + `,
 			"InformacoesAdicionais": ` + formatInfoAdicionais(req.InformacoesAdicionais) + `,
