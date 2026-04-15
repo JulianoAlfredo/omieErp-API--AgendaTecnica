@@ -14,6 +14,7 @@ type OrdemServicoRequest struct {
 		DDtPrevisao string `json:"dDtPrevisao"`
 		NCodCli     int    `json:"nCodCli"`
 		NQtdeParc   int    `json:"nQtdeParc"`
+		NParcelas   int    `json:"nParcelas"`
 	} `json:"Cabecalho"`
 	Departamentos []interface{} `json:"Departamentos"`
 	Email         struct {

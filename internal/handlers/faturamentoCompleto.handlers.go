@@ -23,7 +23,7 @@ func (h *FaturamentoCompletoHandler) CriarFaturamentoCompleto(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+	
 	progressCh := make(chan models.FaturamentoProgresso, 10)
 	go h.omieService.CriarFaturamentoCompletoStream(req, progressCh)
 
