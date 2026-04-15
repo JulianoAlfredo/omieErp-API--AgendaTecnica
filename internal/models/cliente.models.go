@@ -13,7 +13,7 @@ type ClienteConsulta struct {
 }
 
 type ClienteImporta struct {
-	Id string `json:"id"`
+	Id int `json:"id"`
 }
 
 type OmieClienteCadastro struct {

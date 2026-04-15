@@ -3,6 +3,7 @@ package repositories
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 )
 
@@ -60,24 +61,9 @@ func WebhookUpdateOsIncluida(db *sql.DB, idOs string, CodigoIntegra string, Nume
 	return result, nil
 }
 
-func CriarTabelaRelacaoClientes(db *sql.DB) error {
-	query := `
-	
-	CREATE TABLE IF NOT EXISTS amm_omie_relaciona_clientes (
-		cliente_agenda NVARCHAR(200),
-		cliente_omie   BIGINT,
-		cnpj           NVARCHAR(30)
-	)`
-	_, err := db.Exec(query)
-	if err != nil {
-		log.Printf("Erro ao criar tabela amm_omie_relaciona_clientes: %v", err)
-		return err
-	}
-	return nil
-}
-
 func UpsertRelacaoCliente(db *sql.DB, clienteAgenda string, clienteOmie int64, cnpj string) error {
 	var count int
+	fmt.Printf(clienteAgenda, clienteOmie, cnpj)
 	err := db.QueryRow("SELECT COUNT(1) FROM amm_omie_relaciona_clientes WHERE cliente_agenda = ?", clienteAgenda).Scan(&count)
 	if err != nil {
 		log.Printf("Erro ao verificar relacao cliente %s: %v", clienteAgenda, err)
@@ -188,4 +174,269 @@ func InserirLogFaturamento(db *sql.DB, codIntOS string, etapa string, status str
 		log.Printf("[FaturamentoLog] Erro ao inserir log (etapa=%s): %v", etapa, err)
 	}
 	return err
+}
+
+func SearchClientByField(db *sql.DB, id int) (map[string]any, error) {
+	const query = `SELECT
+		c.ID AS codigo_integracao,
+		LEFT(CAST(c.RAZAO_SOCIAL AS VARCHAR(MAX)), 60) AS RAZAO_SOCIAL,
+		CASE
+			WHEN NULLIF(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(CAST(c.CNPJ AS VARCHAR(MAX)))), '.', ''), '-', ''), '/', ''), '') IS NULL THEN NULL
+			WHEN LEN(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(CAST(c.CNPJ AS VARCHAR(MAX)))), '.', ''), '-', ''), '/', '')) < 11 THEN NULL
+			ELSE LEFT(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(CAST(c.CNPJ AS VARCHAR(MAX)))), '.', ''), '-', ''), '/', ''), 14)
+		END AS CNPJ,
+		LEFT(COALESCE(NULLIF(LTRIM(RTRIM(CAST(c.NOME_FANTASIA AS VARCHAR(MAX)))), ''), CAST(c.RAZAO_SOCIAL AS VARCHAR(MAX))), 100) AS nome_fantasia,
+		'Sim' AS cliente,
+		'Não' AS fornecedor,
+		'Não' AS transportadora,
+		'Não' AS funcionario,
+		c.NOME_CONTATOS AS contato,
+		LEFT(LTRIM(RTRIM(ISNULL(CAST(c.ENDERECO AS VARCHAR(MAX)), ''))), 60) AS ENDERECO,
+		c.endereco_numero AS numero,
+		c.Bairro,
+		LEFT(LTRIM(RTRIM(ISNULL(CAST(c.endereco_Complemento AS VARCHAR(MAX)), ''))), 60) AS complemento,
+		NULLIF(
+			CASE UPPER(LTRIM(RTRIM(ISNULL(CAST(c.Estado AS VARCHAR(MAX)), ''))))
+				WHEN 'NULL'   THEN ''
+				WHEN 'NONE'   THEN ''
+				WHEN 'ESTADO' THEN ''
+				ELSE LTRIM(RTRIM(CAST(c.Estado AS VARCHAR(MAX))))
+			END
+		, '') AS Estado,
+		CASE
+			WHEN UPPER(LTRIM(RTRIM(ISNULL(CAST(c.Cidade AS VARCHAR(MAX)), '')))) IN ('NULL', 'NONE', '0', 'RJ', '') THEN NULL
+			WHEN LTRIM(RTRIM(CAST(c.Cidade AS VARCHAR(MAX)))) = 'Rio Janeiro' THEN 'Rio de Janeiro'
+			WHEN UPPER(LTRIM(RTRIM(CAST(c.Cidade AS VARCHAR(MAX))))) IN ('SÃO MATHEUS', 'SAO MATHEUS') THEN 'São Mateus'
+			ELSE LTRIM(RTRIM(CAST(c.Cidade AS VARCHAR(MAX))))
+		END AS Cidade,
+		CASE
+			WHEN UPPER(LTRIM(RTRIM(ISNULL(CAST(c.Pais AS VARCHAR(MAX)), '')))) IN ('NULL', 'NONE', '0', 'BR', '') THEN NULL
+			ELSE LTRIM(RTRIM(CAST(c.Pais AS VARCHAR(MAX))))
+		END AS Pais,
+		NULLIF(LEFT(REPLACE(REPLACE(LTRIM(RTRIM(ISNULL(CAST(c.CEP AS VARCHAR(MAX)), ''))), '-', ''), '.', ''), 8), '') AS CEP,
+		'' AS ddd_telefone,
+		'' AS telefone,
+		NULL AS ddd_telefone2,
+		NULL AS telefone2,
+		NULL AS ddd_fax,
+		NULL AS fax,
+		CASE
+			WHEN LTRIM(RTRIM(ISNULL(CAST(c.EMAILS AS VARCHAR(MAX)), ''))) IN ('', '0', 'NULL') THEN NULL
+			WHEN CHARINDEX('@', LTRIM(RTRIM(CAST(c.EMAILS AS VARCHAR(MAX))))) = 0 THEN NULL
+			WHEN CHARINDEX('.', SUBSTRING(LTRIM(RTRIM(CAST(c.EMAILS AS VARCHAR(MAX)))), CHARINDEX('@', LTRIM(RTRIM(CAST(c.EMAILS AS VARCHAR(MAX))))) + 1, LEN(LTRIM(RTRIM(CAST(c.EMAILS AS VARCHAR(MAX))))))) = 0 THEN NULL
+			ELSE LTRIM(RTRIM(CAST(c.EMAILS AS VARCHAR(MAX))))
+		END AS EMAILS,
+		c.siteCliente,
+		NULL AS banco,
+		NULL AS agencia,
+		NULL AS conta_corrente,
+		NULL AS cnpj_titular,
+		NULL AS nome_titular,
+		NULL AS transferencia_padrao,
+		c.INS_ESTADUAL,
+		c.INS_MUNICIPAL,
+		NULL AS inscricao_suframa,
+		NULL AS tipo_atividade,
+		c.CNAE,
+		'Não' AS simples_nacional,
+		'Não' AS produtor_rural,
+		'Sim' AS contribuinte,
+		NULL AS tags,
+		c.OBS,
+		c.txt_restricao,
+		NULL AS parcelas_padrao,
+		(select nome from amm_usuarios where id = c.ID_VENDEDOR) AS vendedor,
+		CASE
+			WHEN LTRIM(RTRIM(ISNULL(CAST(c.EMAILS AS VARCHAR(MAX)), ''))) IN ('', '0', 'NULL') THEN NULL
+			WHEN CHARINDEX('@', LTRIM(RTRIM(CAST(c.EMAILS AS VARCHAR(MAX))))) = 0 THEN NULL
+			WHEN CHARINDEX('.', SUBSTRING(LTRIM(RTRIM(CAST(c.EMAILS AS VARCHAR(MAX)))), CHARINDEX('@', LTRIM(RTRIM(CAST(c.EMAILS AS VARCHAR(MAX))))) + 1, LEN(LTRIM(RTRIM(CAST(c.EMAILS AS VARCHAR(MAX))))))) = 0 THEN NULL
+			ELSE LTRIM(RTRIM(CAST(c.EMAILS AS VARCHAR(MAX))))
+		END AS email_nf,
+		'Sim' AS gerar_boleto,
+		CASE
+			WHEN NULLIF(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(CAST(c.CNPJ AS VARCHAR(MAX)))), '.', ''), '-', ''), '/', ''), '') IS NULL THEN NULL
+			WHEN LEN(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(CAST(c.CNPJ AS VARCHAR(MAX)))), '.', ''), '-', ''), '/', '')) < 11 THEN NULL
+			ELSE LEFT(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(CAST(c.CNPJ AS VARCHAR(MAX)))), '.', ''), '-', ''), '/', ''), 14)
+		END AS cnpj_entrega,
+		LEFT(CAST(c.RAZAO_SOCIAL AS VARCHAR(MAX)), 60) AS nome_entrega,
+		c.INS_ESTADUAL AS ie_entrega,
+		LEFT(LTRIM(RTRIM(ISNULL(CAST(c.ENDERECO AS VARCHAR(MAX)), ''))), 60) AS endereco_entrega,
+		c.endereco_numero AS numero_entrega,
+		c.Bairro AS bairro_entrega,
+		LEFT(LTRIM(RTRIM(ISNULL(CAST(c.endereco_Complemento AS VARCHAR(MAX)), ''))), 60) AS complemento_entrega,
+		NULLIF(
+			CASE UPPER(LTRIM(RTRIM(ISNULL(CAST(c.Estado AS VARCHAR(MAX)), ''))))
+				WHEN 'NULL'   THEN ''
+				WHEN 'NONE'   THEN ''
+				WHEN 'ESTADO' THEN ''
+				ELSE LTRIM(RTRIM(CAST(c.Estado AS VARCHAR(MAX))))
+			END
+		, '') AS estado_entrega,
+		CASE
+			WHEN UPPER(LTRIM(RTRIM(ISNULL(CAST(c.Cidade AS VARCHAR(MAX)), '')))) IN ('NULL', 'NONE', '0', 'RJ', '') THEN NULL
+			WHEN LTRIM(RTRIM(CAST(c.Cidade AS VARCHAR(MAX)))) = 'Rio Janeiro' THEN 'Rio de Janeiro'
+			WHEN UPPER(LTRIM(RTRIM(CAST(c.Cidade AS VARCHAR(MAX))))) IN ('SÃO MATHEUS', 'SAO MATHEUS') THEN 'São Mateus'
+			ELSE LTRIM(RTRIM(CAST(c.Cidade AS VARCHAR(MAX))))
+		END AS cidade_entrega,
+		NULLIF(LEFT(REPLACE(REPLACE(LTRIM(RTRIM(ISNULL(CAST(c.CEP AS VARCHAR(MAX)), ''))), '-', ''), '.', ''), 8), '') AS cep_entrega,
+		NULLIF(LEFT(LTRIM(RTRIM(ISNULL(CAST(c.CONTATOS AS VARCHAR(MAX)), ''))), 15), '') AS telefone_entrega,
+		NULL AS limite_credito,
+		CASE WHEN c.bloqueiaFaturamento = 1 THEN 'Sim' ELSE 'Não' END AS bloquear_faturamento,
+		NULL AS nome_transportadora,
+		NULL AS chave_pix
+	FROM amm_clientes c
+	WHERE c.id = ?`
+
+	var (
+		codigoIntegracao    int
+		razaoSocial         *string
+		cnpj                *string
+		nomeFantasia        *string
+		cliente             string
+		fornecedor          string
+		transportadora      string
+		funcionario         string
+		contato             *string
+		endereco            string
+		numero              *string
+		bairro              *string
+		complemento         string
+		estado              *string
+		cidade              *string
+		pais                *string
+		cep                 *string
+		dddTelefone         string
+		telefone            string
+		dddTelefone2        *string
+		telefone2           *string
+		dddFax              *string
+		fax                 *string
+		emails              *string
+		siteCliente         *string
+		banco               *string
+		agencia             *string
+		contaCorrente       *string
+		cnpjTitular         *string
+		nomeTitular         *string
+		transferenciaPadrao *string
+		insEstadual         *string
+		insMunicipal        *string
+		inscricaoSuframa    *string
+		tipoAtividade       *string
+		cnae                *string
+		simplesNacional     string
+		produtorRural       string
+		contribuinte        string
+		tags                *string
+		obs                 *string
+		txtRestricao        *string
+		parcelasPadrao      *string
+		vendedor            *string
+		emailNf             *string
+		gerarBoleto         string
+		cnpjEntrega         *string
+		nomeEntrega         *string
+		ieEntrega           *string
+		enderecoEntrega     string
+		numeroEntrega       *string
+		bairroEntrega       *string
+		complementoEntrega  string
+		estadoEntrega       *string
+		cidadeEntrega       *string
+		cepEntrega          *string
+		telefoneEntrega     *string
+		limiteCredito       *string
+		bloquearFaturamento string
+		nomeTransportadora  *string
+		chavePix            *string
+	)
+
+	err := db.QueryRow(query, id).Scan(
+		&codigoIntegracao, &razaoSocial, &cnpj, &nomeFantasia,
+		&cliente, &fornecedor, &transportadora, &funcionario,
+		&contato, &endereco, &numero, &bairro, &complemento,
+		&estado, &cidade, &pais, &cep,
+		&dddTelefone, &telefone, &dddTelefone2, &telefone2, &dddFax, &fax,
+		&emails, &siteCliente,
+		&banco, &agencia, &contaCorrente, &cnpjTitular, &nomeTitular, &transferenciaPadrao,
+		&insEstadual, &insMunicipal, &inscricaoSuframa, &tipoAtividade, &cnae,
+		&simplesNacional, &produtorRural, &contribuinte,
+		&tags, &obs, &txtRestricao, &parcelasPadrao, &vendedor,
+		&emailNf, &gerarBoleto,
+		&cnpjEntrega, &nomeEntrega, &ieEntrega, &enderecoEntrega, &numeroEntrega,
+		&bairroEntrega, &complementoEntrega, &estadoEntrega, &cidadeEntrega,
+		&cepEntrega, &telefoneEntrega,
+		&limiteCredito, &bloquearFaturamento, &nomeTransportadora, &chavePix,
+	)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		log.Printf("Erro ao buscar cliente por id %d: %v", id, err)
+		return nil, err
+	}
+
+	return map[string]any{
+		"codigo_integracao":    codigoIntegracao,
+		"RAZAO_SOCIAL":         razaoSocial,
+		"CNPJ":                 cnpj,
+		"nome_fantasia":        nomeFantasia,
+		"cliente":              cliente,
+		"fornecedor":           fornecedor,
+		"transportadora":       transportadora,
+		"funcionario":          funcionario,
+		"contato":              contato,
+		"ENDERECO":             endereco,
+		"numero":               numero,
+		"Bairro":               bairro,
+		"complemento":          complemento,
+		"Estado":               estado,
+		"Cidade":               cidade,
+		"Pais":                 pais,
+		"CEP":                  cep,
+		"ddd_telefone":         dddTelefone,
+		"telefone":             telefone,
+		"ddd_telefone2":        dddTelefone2,
+		"telefone2":            telefone2,
+		"ddd_fax":              dddFax,
+		"fax":                  fax,
+		"EMAILS":               emails,
+		"siteCliente":          siteCliente,
+		"banco":                banco,
+		"agencia":              agencia,
+		"conta_corrente":       contaCorrente,
+		"cnpj_titular":         cnpjTitular,
+		"nome_titular":         nomeTitular,
+		"transferencia_padrao": transferenciaPadrao,
+		"INS_ESTADUAL":         insEstadual,
+		"INS_MUNICIPAL":        insMunicipal,
+		"inscricao_suframa":    inscricaoSuframa,
+		"tipo_atividade":       tipoAtividade,
+		"CNAE":                 cnae,
+		"simples_nacional":     simplesNacional,
+		"produtor_rural":       produtorRural,
+		"contribuinte":         contribuinte,
+		"tags":                 tags,
+		"OBS":                  obs,
+		"txt_restricao":        txtRestricao,
+		"parcelas_padrao":      parcelasPadrao,
+		"vendedor":             vendedor,
+		"email_nf":             emailNf,
+		"gerar_boleto":         gerarBoleto,
+		"cnpj_entrega":         cnpjEntrega,
+		"nome_entrega":         nomeEntrega,
+		"ie_entrega":           ieEntrega,
+		"endereco_entrega":     enderecoEntrega,
+		"numero_entrega":       numeroEntrega,
+		"bairro_entrega":       bairroEntrega,
+		"complemento_entrega":  complementoEntrega,
+		"estado_entrega":       estadoEntrega,
+		"cidade_entrega":       cidadeEntrega,
+		"cep_entrega":          cepEntrega,
+		"telefone_entrega":     telefoneEntrega,
+		"limite_credito":       limiteCredito,
+		"bloquear_faturamento": bloquearFaturamento,
+		"nome_transportadora":  nomeTransportadora,
+		"chave_pix":            chavePix,
+	}, nil
 }

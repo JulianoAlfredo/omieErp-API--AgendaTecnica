@@ -24,3 +24,10 @@ CREATE TABLE amm_omie_faturamento_log
     dados NVARCHAR(MAX) NULL,
     criado_em DATETIME NOT NULL DEFAULT GETDATE()
 );
+
+CREATE TABLE amm_omie_relaciona_clientes
+(
+    cliente_agenda NVARCHAR(200),
+    cliente_omie BIGINT,
+    cnpj NVARCHAR(30)
+)
