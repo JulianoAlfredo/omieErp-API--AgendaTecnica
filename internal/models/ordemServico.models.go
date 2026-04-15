@@ -15,8 +15,10 @@ type OrdemServicoRequest struct {
 		NCodCli     int    `json:"nCodCli"`
 		NQtdeParc   int    `json:"nQtdeParc"`
 		NParcelas   []struct {
-			NParcela int    `json:"nParcela"`
-			DDtVenc  string `json:"dDtVenc"`
+			NParcela    int     `json:"nParcela"`
+			DDtVenc     string  `json:"dDtVenc"`
+			NPercentual int     `json:"nPercentual"`
+			NValor      float64 `json:"nValor"`
 		} `json:"Parcelas"`
 	} `json:"Cabecalho"`
 	Departamentos []interface{} `json:"Departamentos"`

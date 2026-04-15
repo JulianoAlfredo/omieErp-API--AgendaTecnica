@@ -31,6 +31,13 @@ func formatServicos(servicos interface{}) string {
 	data, _ := json.Marshal(servicos)
 	return string(data)
 }
+func formatParcelas(parcelas interface{}) string {
+	if parcelas == nil {
+		return "[]"
+	}
+	data, _ := json.Marshal(parcelas)
+	return string(data)
+}
 
 // JA CRIA OS EM EXECUCAO... AS OS AQUI VAO SERVIR APENAS PARA FATURAMENTO, SEM SER ACOMPANHAMENTO DA OS MESMO
 func (s *OmieService) CriarOrdemServico(req models.OrdemServicoRequest) (string, error) {
@@ -45,10 +52,9 @@ func (s *OmieService) CriarOrdemServico(req models.OrdemServicoRequest) (string,
 				"cEtapa": "` + req.Cabecalho.CEtapa + `",
 				"dDtPrevisao": "` + req.Cabecalho.DDtPrevisao + `",
 				"nCodCli": ` + fmt.Sprint(req.Cabecalho.NCodCli) + `,
-				"nQtdeParc": ` + fmt.Sprint(req.Cabecalho.NQtdeParc) + `,
-				
+				"nQtdeParc": ` + fmt.Sprint(req.Cabecalho.NQtdeParc) + `
 			},
-			"Parcelas": ` + fmt.Sprint(req.Cabecalho.NParcelas) + `,
+			"Parcelas": ` + formatParcelas(req.Cabecalho.NParcelas) + `,
 			"Departamentos": [],
 			"Email": ` + formatEmail(req.Email) + `,
 			"InformacoesAdicionais": ` + formatInfoAdicionais(req.InformacoesAdicionais) + `,
@@ -57,7 +63,7 @@ func (s *OmieService) CriarOrdemServico(req models.OrdemServicoRequest) (string,
 		"app_key": "` + s.AppKey + `",
 		"app_secret": "` + s.AppSecret + `"
 	}`)
-
+	fmt.Printf("%s\n", payload)
 	httpReq, err := http.NewRequest("POST", url, payload)
 	if err != nil {
 		return "", err
