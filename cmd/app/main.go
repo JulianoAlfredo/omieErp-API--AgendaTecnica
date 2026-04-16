@@ -18,10 +18,8 @@ import (
 func main() {
 	godotenv.Load()
 	omieService := services.NewOmieService(
-		// "7273681392978", PRODUCAO
-		// "1effda944135f315ade14bdd2e7a896c", PRODUCAO
-		"7299234367425",
-		"6de960145c93b18dc08dff314b23dfd9",
+		os.Getenv("OMIE_APP_KEY"),
+		os.Getenv("OMIE_APP_SECRET"),
 		os.Getenv("OMIE_BASE_URL"),
 	)
 	db := database.ConnectToDB()
@@ -75,10 +73,11 @@ func main() {
 
 	router.GET("/sincronizarClientes", clienteHandler.SincronizarClientes)
 
-	fmt.Println("Rodando na porta 8080")
-	fmt.Println(os.Getenv("PORT"))
+	router.POST("/buscarNfse", contaReceberHandler.ConsultarNFSEGerada)
 
-	if err := router.Run(":" + "8080"); err != nil {
+	fmt.Println("Rodando na porta " + os.Getenv("PORT"))
+
+	if err := router.Run(":" + os.Getenv("PORT")); err != nil {
 		log.Fatal(err)
 	}
 }

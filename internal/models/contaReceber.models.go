@@ -13,3 +13,7 @@ type GerarBoletoConta struct {
 type ConsultaBoletoGerado struct {
 	NCodTitulo int64 `json:"nCodTitulo" binding:"required"`
 }
+
+type ConsultaNFSEGerada struct {
+	NNumeroNFSe string `json:"nNumeroNFSe" binding:"required"`
+}

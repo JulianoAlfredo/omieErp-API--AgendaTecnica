@@ -19,6 +19,7 @@ func (s *OmieService) ProcessarWebhookBoletoGerado(data models.WebhookBoletoGera
 		fmt.Printf("\033[32mBoleto gerado inserido com sucesso. Linhas afetadas: %d\033[0m\n", rowsAffected)
 
 		s.ConsultarBoletoGerado(models.ConsultaBoletoGerado{NCodTitulo: data.CodigoConta})
+
 	}
 	return http.StatusOK, nil
 }
@@ -45,7 +46,15 @@ func (s *OmieService) ProcessarWebhookContaReceber(data models.WebhookContaReceb
 	} else {
 		rowsAffected, _ := dbInsertContaReceber.RowsAffected()
 		fmt.Printf("\033[32mConta a receber inserida com sucesso. Linhas afetadas: %d\033[0m\n", rowsAffected)
+		dbInsertDadosNFSE, err := s.UpsertNFSEGerada(models.ConsultaNFSEGerada{NNumeroNFSe: data.NumeroDocumentoFiscal})
+		if err != nil {
+			fmt.Printf("Erro ao obter dados da NFSe gerada: %s\n", err.Error())
+		} else {
+			fmt.Printf("\033[32mNFSe gerada inserida/atualizada com sucesso. Linhas afetadas: %d\033[0m\n", rowsAffected)
+		}
+		fmt.Printf("Dados da NFSe gerada: %v\n", dbInsertDadosNFSE)
 	}
+
 	return http.StatusOK, nil
 }
 

@@ -85,3 +85,20 @@ func (h *ContaReceberHandler) ConsultarBoletoGerado(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, resultado)
 }
+
+func (h *ContaReceberHandler) ConsultarNFSEGerada(c *gin.Context) {
+	var req models.ConsultaNFSEGerada
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "body inválido",
+			"detalhe": err.Error(),
+		})
+		return
+	}
+	resultado, err := h.omieService.UpsertNFSEGerada(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, resultado)
+}
