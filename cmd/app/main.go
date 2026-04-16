@@ -18,8 +18,8 @@ import (
 func main() {
 	godotenv.Load()
 	omieService := services.NewOmieService(
-		os.Getenv("OMIE_APP_KEY"),
-		os.Getenv("OMIE_APP_SECRET"),
+		os.Getenv("OMIE_APP_KEY_PROD"),
+		os.Getenv("OMIE_APP_SECRET_PROD"),
 		os.Getenv("OMIE_BASE_URL"),
 	)
 	db := database.ConnectToDB()
@@ -68,7 +68,7 @@ func main() {
 	router.POST("/consultarBoletoGerado", contaReceberHandler.ConsultarBoletoGerado)
 	router.POST("/webhook", webhookHandler.ReceberWebhook)
 	router.POST("/criarFaturamentoCompleto", faturamentoCompletoHandler.CriarFaturamentoCompleto)
-	router.POST("/consultarCliente", clienteHandler.ListarClientes)
+	router.POST("/consultarCliente", clienteHandler.ConsultarCliente)
 	router.GET("/listarContasCorrente", contaCorrenteHandler.ListarContasCorrente)
 
 	router.GET("/sincronizarClientes", clienteHandler.SincronizarClientes)
