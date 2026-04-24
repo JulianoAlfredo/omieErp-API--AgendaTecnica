@@ -176,7 +176,7 @@ func InserirLogFaturamento(db *sql.DB, codIntOS string, etapa string, status str
 	return err
 }
 
-func UpsertNFSEGerada(db *sql.DB, nCodNF int64, codigoOs float64, cDataEmissao string, cXmlNFSe string, cUrlNFSe string, cLinkPortal string, cNumNFSe string) (sql.Result, error) {
+func UpsertNFSEGerada(db *sql.DB, nCodNF int64, codigoOs float64, cDataEmissao string, cXmlNFSe string, cUrlNFSe string, cLinkPortal string, cNumNFSe string, cPdfNfse string) (sql.Result, error) {
 	var count int
 	fmt.Printf("%f\n", codigoOs)
 	err := db.QueryRow("SELECT COUNT(1) FROM amm_contas_omie_x_agenda WHERE id_os = ?", codigoOs).Scan(&count)
@@ -187,14 +187,14 @@ func UpsertNFSEGerada(db *sql.DB, nCodNF int64, codigoOs float64, cDataEmissao s
 	var result sql.Result
 	if count == 0 {
 		result, err = db.Exec(
-			"INSERT INTO amm_contas_omie_x_agenda (id_nf, id_os, data_emissao, xml_nfe, link_portal, numero_nf) VALUES (?, ?, ?, ?, ?, ?)",
-			nCodNF, codigoOs, cDataEmissao, cXmlNFSe, cLinkPortal, cNumNFSe,
+			"INSERT INTO amm_contas_omie_x_agenda (id_nf, id_os, data_emissao, xml_nfe, link_portal, numero_nf, link_nf) VALUES (?, ?, ?, ?, ?, ?, ?)",
+			nCodNF, codigoOs, cDataEmissao, cXmlNFSe, cLinkPortal, cNumNFSe, cPdfNfse
 		)
 		fmt.Printf("inserindo novo registro")
 	} else {
 		result, err = db.Exec(
-			"UPDATE amm_contas_omie_x_agenda SET id_nf = ?, data_emissao = ?, xml_nfe = ?, link_portal = ?, numero_nf = ? WHERE id_os = ?",
-			nCodNF, cDataEmissao, cXmlNFSe, cLinkPortal, cNumNFSe, codigoOs,
+			"UPDATE amm_contas_omie_x_agenda SET id_nf = ?, data_emissao = ?, xml_nfe = ?, link_portal = ?, numero_nf = ?, link_nf = ? WHERE id_os = ?",
+			nCodNF, cDataEmissao, cXmlNFSe, cLinkPortal, cNumNFSe, cPdfNfse, codigoOs,
 		)
 		fmt.Printf("atualizando registro existente\n")
 
