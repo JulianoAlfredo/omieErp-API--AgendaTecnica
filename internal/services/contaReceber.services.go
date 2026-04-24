@@ -299,8 +299,9 @@ func (s *OmieService) UpsertNFSEGerada(req models.ConsultaNFSEGerada) (map[strin
 	cXmlNFSe, _ := obterResp["cXmlNFSe"].(string)
 	cUrlNFSe, _ := obterResp["cUrlNFSe"].(string)
 	cLinkPortal, _ := obterResp["cLinkPortal"].(string)
+	cPdfNfse, _ := obterResp["cPdfNFSe"].(string)
 	cNumNFSe, _ := obterResp["cNumNFSe"].(string)
-	_, err = repositories.UpsertNFSEGerada(database.ConnectToDB(), nCodNF, codigoOs, cDataEmissao, cXmlNFSe, cUrlNFSe, cLinkPortal, cNumNFSe)
+	_, err = repositories.UpsertNFSEGerada(database.ConnectToDB(), nCodNF, codigoOs, cDataEmissao, cXmlNFSe, cUrlNFSe, cLinkPortal, cNumNFSe, cPdfNfse)
 	if err != nil {
 		return map[string]any{"erro": err.Error()}, err
 	}
