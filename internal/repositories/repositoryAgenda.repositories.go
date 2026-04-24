@@ -188,7 +188,7 @@ func UpsertNFSEGerada(db *sql.DB, nCodNF int64, codigoOs float64, cDataEmissao s
 	if count == 0 {
 		result, err = db.Exec(
 			"INSERT INTO amm_contas_omie_x_agenda (id_nf, id_os, data_emissao, xml_nfe, link_portal, numero_nf, link_nf) VALUES (?, ?, ?, ?, ?, ?, ?)",
-			nCodNF, codigoOs, cDataEmissao, cXmlNFSe, cLinkPortal, cNumNFSe, cPdfNfse
+			nCodNF, codigoOs, cDataEmissao, cXmlNFSe, cLinkPortal, cNumNFSe, cPdfNfse,
 		)
 		fmt.Printf("inserindo novo registro")
 	} else {
