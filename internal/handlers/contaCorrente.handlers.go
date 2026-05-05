@@ -24,3 +24,13 @@ func (h *ContaCorrenteHandler) ListarContasCorrente(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, resultado)
 }
+
+func (h *ContaCorrenteHandler) ExtratoCompleto(c *gin.Context) {
+	resultado, err := h.omieService.ExtratoCompleto()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, resultado)
+
+}

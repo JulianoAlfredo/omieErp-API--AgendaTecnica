@@ -7,6 +7,12 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"sync"
+)
+
+var (
+	codIntOSCounter = -1
+	counterMutex    sync.Mutex
 )
 
 // Quero inserir essas 3 funcs em algum utils ou helpers, mas por enquanto vou deixar aqui para não perder o código
@@ -41,6 +47,22 @@ func formatParcelas(parcelas interface{}) string {
 
 // JA CRIA OS EM EXECUCAO... AS OS AQUI VAO SERVIR APENAS PARA FATURAMENTO, SEM SER ACOMPANHAMENTO DA OS MESMO
 func (s *OmieService) CriarOrdemServico(req models.OrdemServicoRequest) (string, error) {
+	const maxRetries = 1
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		result, err := s.criarOrdemServicoInterno(req)
+		if err == nil {
+			return result, nil
+		}
+		if attempt < maxRetries && strings.HasPrefix(err.Error(), "SOAP-ENV:Client") {
+			req.Cabecalho.CCodIntOS = req.Cabecalho.CCodIntOS + "-1"
+			continue
+		}
+		return "", err
+	}
+	return "", fmt.Errorf("número máximo de tentativas atingido")
+}
+
+func (s *OmieService) criarOrdemServicoInterno(req models.OrdemServicoRequest) (string, error) {
 	url := s.BaseURL + "/api/v1/servicos/os/"
 	fmt.Println("REQ:", req.Cabecalho.CCodIntOS)
 	payload := strings.NewReader(`{
@@ -74,14 +96,28 @@ func (s *OmieService) CriarOrdemServico(req models.OrdemServicoRequest) (string,
 	client := &http.Client{}
 	resp, err := client.Do(httpReq)
 	if err != nil {
-		return "", err
+		return fmt.Sprintf("Erro ao enviar requisição: %v", err), err
 	}
 	defer resp.Body.Close()
-	fmt.Println(err)
-	fmt.Println(resp)
 	body, _ := io.ReadAll(resp.Body)
 	fmt.Println("Status:", resp.Status)
 	fmt.Println("Resposta:", string(body))
+
+	if resp.StatusCode >= 400 {
+		var apiErr struct {
+			FaultCode   string `json:"faultcode"`
+			FaultString string `json:"faultstring"`
+		}
+		if jsonErr := json.Unmarshal(body, &apiErr); jsonErr != nil {
+			return "", fmt.Errorf("erro HTTP %d: %s", resp.StatusCode, string(body))
+		}
+
+		if strings.HasPrefix(apiErr.FaultCode, "SOAP-ENV:Client") {
+			return "", fmt.Errorf("SOAP-ENV:Client")
+		}
+
+		return "", fmt.Errorf("[%s] %s", apiErr.FaultCode, apiErr.FaultString)
+	}
 
 	return "OS cadastrado com sucesso", nil
 }

@@ -1,2 +1,5 @@
 env
 .env
+
+internal/private/*.crt
+internal/private/*.key
