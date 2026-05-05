@@ -47,14 +47,14 @@ func formatParcelas(parcelas interface{}) string {
 
 // JA CRIA OS EM EXECUCAO... AS OS AQUI VAO SERVIR APENAS PARA FATURAMENTO, SEM SER ACOMPANHAMENTO DA OS MESMO
 func (s *OmieService) CriarOrdemServico(req models.OrdemServicoRequest) (string, error) {
-	const maxRetries = 1
+	const maxRetries = 5
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		result, err := s.criarOrdemServicoInterno(req)
 		if err == nil {
 			return result, nil
 		}
 		if attempt < maxRetries && strings.HasPrefix(err.Error(), "SOAP-ENV:Client") {
-			req.Cabecalho.CCodIntOS = req.Cabecalho.CCodIntOS + "-1"
+			req.Cabecalho.CCodIntOS = req.Cabecalho.CCodIntOS + "-" + fmt.Sprint(attempt)
 			continue
 		}
 		return "", err
@@ -85,7 +85,6 @@ func (s *OmieService) criarOrdemServicoInterno(req models.OrdemServicoRequest) (
 		"app_key": "` + s.AppKey + `",
 		"app_secret": "` + s.AppSecret + `"
 	}`)
-	fmt.Printf("%s\n", payload)
 	httpReq, err := http.NewRequest("POST", url, payload)
 	if err != nil {
 		return "", err
