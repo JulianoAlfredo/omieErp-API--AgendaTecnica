@@ -43,6 +43,7 @@ type OrdemServicoRequest struct {
 		NQtde          float64 `json:"nQtde"`
 		NValUnit       float64 `json:"nValUnit"`
 		NCodServico    int     `json:"nCodServico"`
+		CNbs           string  `json:"cNbs"`
 		Impostos       struct {
 			CRetemIRRF  string  `json:"cRetemIRRF"`
 			CRetemPIS   string  `json:"cRetemPIS"`
