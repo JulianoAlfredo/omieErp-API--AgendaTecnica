@@ -18,8 +18,8 @@ import (
 func main() {
 	godotenv.Load()
 	omieService := services.NewOmieService(
-		os.Getenv("OMIE_APP_KEY"),
-		os.Getenv("OMIE_APP_SECRET"),
+		os.Getenv("OMIE_APP_KEY_PROD"),
+		os.Getenv("OMIE_APP_SECRET_PROD"),
 		os.Getenv("OMIE_BASE_URL"),
 	)
 	db := database.ConnectToDB()
