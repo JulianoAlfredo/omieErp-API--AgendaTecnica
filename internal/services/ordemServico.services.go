@@ -53,7 +53,11 @@ func (s *OmieService) CriarOrdemServico(req models.OrdemServicoRequest) (string,
 		if err == nil {
 			return result, nil
 		}
-		if attempt < maxRetries && strings.HasPrefix(err.Error(), "SOAP-ENV:Client") {
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "Cidade não cadastrada") {
+			return "", fmt.Errorf("Cidade incorreta, verifique o cadastro")
+		}
+		if attempt < maxRetries && strings.HasPrefix(errMsg, "SOAP-ENV:Client") {
 			req.Cabecalho.CCodIntOS = req.Cabecalho.CCodIntOS + "-" + fmt.Sprint(attempt)
 			continue
 		}
@@ -112,7 +116,7 @@ func (s *OmieService) criarOrdemServicoInterno(req models.OrdemServicoRequest) (
 		}
 
 		if strings.HasPrefix(apiErr.FaultCode, "SOAP-ENV:Client") {
-			return "", fmt.Errorf("SOAP-ENV:Client")
+			return "", fmt.Errorf("%s: %s", apiErr.FaultCode, apiErr.FaultString)
 		}
 
 		return "", fmt.Errorf("[%s] %s", apiErr.FaultCode, apiErr.FaultString)
