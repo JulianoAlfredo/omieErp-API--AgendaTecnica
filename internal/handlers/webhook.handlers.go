@@ -189,6 +189,9 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 				contaData := contaReceber[0].(map[string]interface{})
 				responseBaixaRealizada.CodigoLancamentoOmie = int64(contaData["codigo_lancamento_omie"].(float64))
 				responseBaixaRealizada.CodigoCliente = int64(eventData["codigo_cliente_fornecedor"].(float64))
+				responseBaixaRealizada.Data = fmt.Sprintf("%v", eventData["data"])
+				responseBaixaRealizada.DataCred = fmt.Sprintf("%v", eventData["data_cred"])
+				responseBaixaRealizada.Observacao = fmt.Sprintf("%v", eventData["observacao"])
 				err := h.workerPool.Enqueue(workers.WebhookJob{
 					Tipo:           workers.JobBaixaRealizada,
 					BaixaRealizada: &responseBaixaRealizada,

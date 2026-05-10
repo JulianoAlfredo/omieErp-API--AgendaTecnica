@@ -42,6 +42,9 @@ type WebhookNfseAutorizadaResponse struct {
 }
 
 type WebhookBaixaRealizadaResponse struct {
-	CodigoLancamentoOmie int64 `json:"codigo_lancamento_omie"`
-	CodigoCliente        int64 `json:"codigo_cliente_fornecedor"`
+	CodigoLancamentoOmie int64  `json:"codigo_lancamento_omie"`
+	CodigoCliente        int64  `json:"codigo_cliente_fornecedor"`
+	Data                 string `json:"data"`
+	DataCred             string `json:"data_cred"`
+	Observacao           string `json:"observacao"`
 }

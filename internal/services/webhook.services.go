@@ -78,8 +78,9 @@ func (s *OmieService) ProcessarWebhookNfseAutorizada(data models.WebhookNfseAuto
 }
 
 func (s *OmieService) ProcessarWebhookBaixaRealizada(data models.WebhookBaixaRealizadaResponse) (int, error) {
-	fmt.Printf("Processando webhook de baixa realizada: Código Lançamento Omie: %d, Código Cliente: %d\n", data.CodigoLancamentoOmie, data.CodigoCliente)
-	result, err := repositories.WebhookUpdateConferido(database.ConnectToDB(), data.CodigoLancamentoOmie)
+	fmt.Printf("Processando webhook de baixa realizada: Código Lançamento Omie: %d, Código Cliente: %d, Data: %s, Data Crédito: %s\n",
+		data.CodigoLancamentoOmie, data.CodigoCliente, data.Data, data.DataCred)
+	result, err := repositories.WebhookUpdateConferido(database.ConnectToDB(), data.CodigoLancamentoOmie, data.Data, data.DataCred, data.Observacao)
 	if err != nil {
 		fmt.Printf("Erro ao atualizar conferido: %s\n", err.Error())
 	} else {
