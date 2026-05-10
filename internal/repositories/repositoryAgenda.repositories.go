@@ -207,6 +207,15 @@ func UpsertNFSEGerada(db *sql.DB, nCodNF int64, codigoOs float64, cDataEmissao s
 	return result, nil
 }
 
+func WebhookUpdateConferido(db *sql.DB, codigoLancamentoOmie int64) (sql.Result, error) {
+	result, err := db.Exec("UPDATE amm_contas_omie_x_agenda SET conferido = 1 WHERE id_conta_omie = ?", codigoLancamentoOmie)
+	if err != nil {
+		log.Printf("Erro ao atualizar conferido: %v", err)
+		return nil, err
+	}
+	return result, nil
+}
+
 func SearchClientByField(db *sql.DB, id int) (map[string]any, error) {
 	const query = `SELECT
 		c.ID AS codigo_integracao,

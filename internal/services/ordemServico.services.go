@@ -45,7 +45,6 @@ func formatParcelas(parcelas interface{}) string {
 	return string(data)
 }
 
-// JA CRIA OS EM EXECUCAO... AS OS AQUI VAO SERVIR APENAS PARA FATURAMENTO, SEM SER ACOMPANHAMENTO DA OS MESMO
 func (s *OmieService) CriarOrdemServico(req models.OrdemServicoRequest) (string, error) {
 	const maxRetries = 5
 	for attempt := 0; attempt <= maxRetries; attempt++ {

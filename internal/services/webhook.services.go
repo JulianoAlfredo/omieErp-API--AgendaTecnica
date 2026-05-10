@@ -76,3 +76,15 @@ func (s *OmieService) ProcessarWebhookNfseAutorizada(data models.WebhookNfseAuto
 	fmt.Printf("Processando webhook de NFSe autorizada: Número OS: %s, Número RPS: %s, Código OS: %s, Código NF: %s, Data Emissão: %s\n", data.NumeroOs, data.NumeroRps, data.CodigoOs, data.CodigoNf, data.DataEmissao)
 	return http.StatusOK, nil
 }
+
+func (s *OmieService) ProcessarWebhookBaixaRealizada(data models.WebhookBaixaRealizadaResponse) (int, error) {
+	fmt.Printf("Processando webhook de baixa realizada: Código Lançamento Omie: %d, Código Cliente: %d\n", data.CodigoLancamentoOmie, data.CodigoCliente)
+	result, err := repositories.WebhookUpdateConferido(database.ConnectToDB(), data.CodigoLancamentoOmie)
+	if err != nil {
+		fmt.Printf("Erro ao atualizar conferido: %s\n", err.Error())
+	} else {
+		rowsAffected, _ := result.RowsAffected()
+		fmt.Printf("\033[32mConferido atualizado com sucesso. Linhas afetadas: %d\033[0m\n", rowsAffected)
+	}
+	return http.StatusOK, nil
+}

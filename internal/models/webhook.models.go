@@ -40,3 +40,8 @@ type WebhookNfseAutorizadaResponse struct {
 	CodigoNf    string `json:"id_nf"`
 	DataEmissao string `json:"data_emis"`
 }
+
+type WebhookBaixaRealizadaResponse struct {
+	CodigoLancamentoOmie int64 `json:"codigo_lancamento_omie"`
+	CodigoCliente        int64 `json:"codigo_cliente_fornecedor"`
+}

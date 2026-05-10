@@ -17,6 +17,7 @@ type Processor interface {
 	ProcessarWebhookOsIncluida(data models.WebhookOsIncluidaResponse) (int, error)
 	ProcessarWebhookBoletoGerado(data models.WebhookBoletoGeradoResponse) (int, error)
 	ProcessarWebhookNfseAutorizada(data models.WebhookNfseAutorizadaResponse) (int, error)
+	ProcessarWebhookBaixaRealizada(data models.WebhookBaixaRealizadaResponse) (int, error)
 }
 
 type TipoJob string
@@ -27,6 +28,7 @@ const (
 	JobOsIncluida     TipoJob = "os_incluida"
 	JobBoletoGerado   TipoJob = "boleto_gerado"
 	JobNfseAutorizada TipoJob = "nfse_autorizada"
+	JobBaixaRealizada TipoJob = "baixa_realizada"
 )
 
 type WebhookJob struct {
@@ -37,6 +39,7 @@ type WebhookJob struct {
 	ContaReceber   *models.WebhookContaReceberResponseInclude
 	BoletoGerado   *models.WebhookBoletoGeradoResponse
 	NfseAutorizada *models.WebhookNfseAutorizadaResponse
+	BaixaRealizada *models.WebhookBaixaRealizadaResponse
 }
 
 type WebhookWorkerPool struct {
@@ -113,6 +116,10 @@ func (p *WebhookWorkerPool) worker(id int) {
 			case JobNfseAutorizada:
 				if job.NfseAutorizada != nil {
 					_, err = p.processor.ProcessarWebhookNfseAutorizada(*job.NfseAutorizada)
+				}
+			case JobBaixaRealizada:
+				if job.BaixaRealizada != nil {
+					_, err = p.processor.ProcessarWebhookBaixaRealizada(*job.BaixaRealizada)
 				}
 			default:
 				err = errors.New("tipo de job inválido")

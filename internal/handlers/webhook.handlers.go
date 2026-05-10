@@ -26,6 +26,7 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 	var responseOsIncluida models.WebhookOsIncluidaResponse
 	var responseBoletoGerado models.WebhookBoletoGeradoResponse
 	var responseNfseAutorizada models.WebhookNfseAutorizadaResponse
+	var responseBaixaRealizada models.WebhookBaixaRealizadaResponse
 
 	fmt.Println("SIMULA salvamento banco: ", map[string]interface{}{
 		"tipo":      body["topic"],
@@ -176,6 +177,27 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 		if err != nil {
 			c.JSON(http.StatusServiceUnavailable, gin.H{"erro": "fila cheia, tente novamente"})
 			return
+		}
+		c.JSON(http.StatusAccepted, gin.H{"status": "enfileirado"})
+	case "Financas.ContaReceber.BaixaRealizada":
+		fmt.Println("Baixa realizada em conta a receber")
+		event := body["event"].([]interface{})
+		if len(event) > 0 {
+			eventData := event[0].(map[string]interface{})
+			contaReceber := eventData["conta_a_receber"].([]interface{})
+			if len(contaReceber) > 0 {
+				contaData := contaReceber[0].(map[string]interface{})
+				responseBaixaRealizada.CodigoLancamentoOmie = int64(contaData["codigo_lancamento_omie"].(float64))
+				responseBaixaRealizada.CodigoCliente = int64(eventData["codigo_cliente_fornecedor"].(float64))
+				err := h.workerPool.Enqueue(workers.WebhookJob{
+					Tipo:           workers.JobBaixaRealizada,
+					BaixaRealizada: &responseBaixaRealizada,
+				})
+				if err != nil {
+					c.JSON(http.StatusServiceUnavailable, gin.H{"erro": "fila cheia, tente novamente"})
+					return
+				}
+			}
 		}
 		c.JSON(http.StatusAccepted, gin.H{"status": "enfileirado"})
 	}
