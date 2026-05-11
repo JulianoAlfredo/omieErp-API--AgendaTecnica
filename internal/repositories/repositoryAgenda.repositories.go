@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 )
 
 func SearchClients(db *sql.DB, idClient string) []map[string]any {
@@ -208,9 +209,19 @@ func UpsertNFSEGerada(db *sql.DB, nCodNF int64, codigoOs float64, cDataEmissao s
 }
 
 func WebhookUpdateConferido(db *sql.DB, codigoLancamentoOmie int64, data string, dataCred string, observacao string) (sql.Result, error) {
+	parsedData, err := time.Parse(time.RFC3339, data)
+	if err != nil {
+		log.Printf("Erro ao parsear data_baixa '%s': %v", data, err)
+		return nil, err
+	}
+	parsedDataCred, err := time.Parse(time.RFC3339, dataCred)
+	if err != nil {
+		log.Printf("Erro ao parsear data_cred '%s': %v", dataCred, err)
+		return nil, err
+	}
 	result, err := db.Exec(
 		"UPDATE amm_contas_omie_x_agenda SET conferido = 1, data_baixa = ?, data_cred = ?, observacao_baixa = ? WHERE id_conta_omie = ?",
-		data, dataCred, observacao, codigoLancamentoOmie,
+		parsedData.UTC(), parsedDataCred.UTC(), observacao, codigoLancamentoOmie,
 	)
 	if err != nil {
 		log.Printf("Erro ao atualizar conferido: %v", err)

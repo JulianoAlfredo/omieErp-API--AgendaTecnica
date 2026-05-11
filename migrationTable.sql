@@ -32,9 +32,8 @@ CREATE TABLE amm_omie_relaciona_clientes
     cnpj NVARCHAR(30)
 );
 
--- Adiciona colunas para registrar a baixa realizada na conta a receber
 ALTER TABLE amm_contas_omie_x_agenda
-    ADD conferido       INT            NULL,
+    ADD 
         data_baixa      DATETIME       NULL,
         data_cred       DATETIME       NULL,
         observacao_baixa NVARCHAR(MAX) NULL;
