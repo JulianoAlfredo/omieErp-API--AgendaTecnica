@@ -235,6 +235,7 @@ func SearchClientByField(db *sql.DB, id int) (map[string]any, error) {
 		c.ID AS codigo_integracao,
 		LEFT(CAST(c.RAZAO_SOCIAL AS VARCHAR(MAX)), 60) AS RAZAO_SOCIAL,
 		CASE
+			WHEN c.tpInsc = 3 THEN LTRIM(RTRIM(CAST(c.SEI AS VARCHAR(MAX))))
 			WHEN NULLIF(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(CAST(c.CNPJ AS VARCHAR(MAX)))), '.', ''), '-', ''), '/', ''), '') IS NULL THEN NULL
 			WHEN LEN(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(CAST(c.CNPJ AS VARCHAR(MAX)))), '.', ''), '-', ''), '/', '')) < 11 THEN NULL
 			ELSE LEFT(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(CAST(c.CNPJ AS VARCHAR(MAX)))), '.', ''), '-', ''), '/', ''), 14)
@@ -308,6 +309,7 @@ func SearchClientByField(db *sql.DB, id int) (map[string]any, error) {
 		END AS email_nf,
 		'Sim' AS gerar_boleto,
 		CASE
+			WHEN c.tpInsc = 3 THEN LTRIM(RTRIM(CAST(c.SEI AS VARCHAR(MAX))))
 			WHEN NULLIF(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(CAST(c.CNPJ AS VARCHAR(MAX)))), '.', ''), '-', ''), '/', ''), '') IS NULL THEN NULL
 			WHEN LEN(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(CAST(c.CNPJ AS VARCHAR(MAX)))), '.', ''), '-', ''), '/', '')) < 11 THEN NULL
 			ELSE LEFT(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(CAST(c.CNPJ AS VARCHAR(MAX)))), '.', ''), '-', ''), '/', ''), 14)
