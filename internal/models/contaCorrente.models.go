@@ -71,3 +71,31 @@ type ExtratoCompletoResponse struct {
 	Resumo     []ExtratoResumoItem    `json:"resumo"`
 	Transacoes []ExtratoInterResponse `json:"transacoes"`
 }
+
+type ExtratoOmieItem struct {
+	CCodCategoria    string  `json:"cCodCategoria"`
+	CDataLancamento  string  `json:"dDataLancamento"`
+	CDesCliente      string  `json:"cDesCliente"`
+	CDocumentoFiscal string  `json:"cDocumentoFiscal"`
+	CNatureza        string  `json:"cNatureza"`
+	CNumero          string  `json:"cNumero"`
+	CObservacoes     string  `json:"cObservacoes"`
+	COrigem          string  `json:"cOrigem"`
+	CSituacao        string  `json:"cSituacao"`
+	NCodCliente      int64   `json:"nCodCliente"`
+	NCodLancamento   int64   `json:"nCodLancamento"`
+	NValorDocumento  float64 `json:"nValorDocumento"`
+	DDataConciliacao string  `json:"dDataConciliacao"`
+}
+
+type ExtratoOmieResponse struct {
+	NPaginas      int               `json:"nPaginas"`
+	NTotRegistros int               `json:"nTotRegistros"`
+	Movimentos    []ExtratoOmieItem `json:"listaMovimentos"`
+}
+
+type SincronizarBaixasResult struct {
+	Total          int      `json:"total"`
+	Sincronizados  int      `json:"sincronizados"`
+	NaoEncontrados []string `json:"nao_encontrados"`
+}

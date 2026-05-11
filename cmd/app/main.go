@@ -70,6 +70,7 @@ func main() {
 	router.POST("/criarFaturamentoCompleto", faturamentoCompletoHandler.CriarFaturamentoCompleto)
 	router.POST("/consultarCliente", clienteHandler.ConsultarCliente)
 	router.GET("/listarContasCorrente", contaCorrenteHandler.ListarContasCorrente)
+	router.POST("/sincronizarBaixas", contaCorrenteHandler.SincronizarBaixas)
 
 	router.GET("/sincronizarClientes", clienteHandler.SincronizarClientes)
 

@@ -24,7 +24,9 @@ import (
 	"strings"
 	"time"
 
+	"example/web-service-gin/internal/database"
 	"example/web-service-gin/internal/models"
+	"example/web-service-gin/internal/repositories"
 )
 
 func (s *OmieService) ListarContasCorrente() ([]models.ContaCorrente, error) {
@@ -310,4 +312,67 @@ func (s *OmieService) ExtratoCompleto() (*models.ExtratoCompletoResponse, error)
 		Resumo:     resumo,
 		Transacoes: transacoes,
 	}, nil
+}
+
+func (s *OmieService) SincronizarBaixasOmie(nCodCC int64, dataInicial string, dataFinal string) (*models.SincronizarBaixasResult, error) {
+	endpoint := s.BaseURL + "/api/v1/financas/extrato/"
+
+	resultado := &models.SincronizarBaixasResult{
+		NaoEncontrados: []string{},
+	}
+
+	db := database.ConnectToDB()
+	defer db.Close()
+
+	payload := fmt.Sprintf(`{"call":"ListarExtrato","param":[{"nCodCC":%d,"cCodIntCC":"","dPeriodoInicial":"%s","dPeriodoFinal":"%s"}],"app_key":"%s","app_secret":"%s"}`,
+		nCodCC, dataInicial, dataFinal, s.AppKey, s.AppSecret)
+
+	req, err := http.NewRequest("POST", endpoint, strings.NewReader(payload))
+	if err != nil {
+		return nil, fmt.Errorf("erro ao criar requisição OMIE: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := (&http.Client{}).Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao chamar API OMIE: %w", err)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		return nil, fmt.Errorf("erro ao ler resposta OMIE: %w", err)
+	}
+
+	var extratoResp models.ExtratoOmieResponse
+	if err := json.Unmarshal(body, &extratoResp); err != nil {
+		return nil, fmt.Errorf("erro ao parsear resposta OMIE: %w, body=%s", err, string(body))
+	}
+
+	for _, mov := range extratoResp.Movimentos {
+		if mov.NCodLancamento == 0 || mov.CNumero == "" {
+			continue
+		}
+		if mov.CNatureza != "R" {
+			continue
+		}
+
+		resultado.Total++
+
+		rows, err := repositories.UpdateBaixaPorNumeroRps(db, mov.CNumero, mov.NCodLancamento, mov.NValorDocumento, mov.CObservacoes, mov.CDataLancamento)
+		if err != nil {
+			fmt.Printf("[SincronizarBaixas] Erro ao atualizar RPS %s: %v\n", mov.CNumero, err)
+			resultado.NaoEncontrados = append(resultado.NaoEncontrados, mov.CNumero)
+			continue
+		}
+		if rows == 0 {
+			fmt.Printf("[SincronizarBaixas] RPS não encontrado na base: %s\n", mov.CNumero)
+			resultado.NaoEncontrados = append(resultado.NaoEncontrados, mov.CNumero)
+		} else {
+			resultado.Sincronizados++
+			fmt.Printf("[SincronizarBaixas] RPS %s sincronizado (lancamento=%d, valor=%.2f)\n", mov.CNumero, mov.NCodLancamento, mov.NValorDocumento)
+		}
+	}
+
+	return resultado, nil
 }

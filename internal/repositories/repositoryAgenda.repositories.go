@@ -230,6 +230,26 @@ func WebhookUpdateConferido(db *sql.DB, codigoLancamentoOmie int64, data string,
 	return result, nil
 }
 
+func UpdateBaixaPorNumeroRps(db *sql.DB, numeroRps string, codigoLancamentoOmie int64, valor float64, observacao string, dataBaixa string) (int64, error) {
+	parsed, err := time.Parse("02/01/2006", dataBaixa)
+	if err != nil {
+		log.Printf("Erro ao parsear data_baixa '%s': %v", dataBaixa, err)
+		return 0, err
+	}
+	result, err := db.Exec(
+		`UPDATE amm_contas_omie_x_agenda
+		 SET conferido = 1, id_conta_omie = ?, valor_baixa = ?, observacao_baixa = ?, data_baixa = ?, data_cred = ?
+		 WHERE numero_rps = ?`,
+		codigoLancamentoOmie, valor, observacao, parsed.UTC(), parsed.UTC(), numeroRps,
+	)
+	if err != nil {
+		log.Printf("Erro ao atualizar baixa por numero_rps '%s': %v", numeroRps, err)
+		return 0, err
+	}
+	rows, _ := result.RowsAffected()
+	return rows, nil
+}
+
 func SearchClientByField(db *sql.DB, id int) (map[string]any, error) {
 	const query = `SELECT
 		c.ID AS codigo_integracao,
