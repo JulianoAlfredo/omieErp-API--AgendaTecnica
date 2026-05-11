@@ -192,6 +192,7 @@ func (h *WebhookHandler) ReceberWebhook(c *gin.Context) {
 				responseBaixaRealizada.Data = fmt.Sprintf("%v", eventData["data"])
 				responseBaixaRealizada.DataCred = fmt.Sprintf("%v", eventData["data_cred"])
 				responseBaixaRealizada.Observacao = fmt.Sprintf("%v", eventData["observacao"])
+				responseBaixaRealizada.Valor = eventData["valor"].(float64)
 				err := h.workerPool.Enqueue(workers.WebhookJob{
 					Tipo:           workers.JobBaixaRealizada,
 					BaixaRealizada: &responseBaixaRealizada,

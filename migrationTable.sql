@@ -34,6 +34,7 @@ CREATE TABLE amm_omie_relaciona_clientes
 
 ALTER TABLE amm_contas_omie_x_agenda
     ADD 
-        data_baixa      DATETIME       NULL,
-        data_cred       DATETIME       NULL,
-        observacao_baixa NVARCHAR(MAX) NULL;
+        data_baixa       DATETIME       NULL,
+        data_cred        DATETIME       NULL,
+        observacao_baixa NVARCHAR(MAX)  NULL,
+        valor_baixa      DECIMAL(15, 2) NULL;

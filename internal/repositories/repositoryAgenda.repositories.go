@@ -208,7 +208,7 @@ func UpsertNFSEGerada(db *sql.DB, nCodNF int64, codigoOs float64, cDataEmissao s
 	return result, nil
 }
 
-func WebhookUpdateConferido(db *sql.DB, codigoLancamentoOmie int64, data string, dataCred string, observacao string) (sql.Result, error) {
+func WebhookUpdateConferido(db *sql.DB, codigoLancamentoOmie int64, data string, dataCred string, observacao string, valor float64) (sql.Result, error) {
 	parsedData, err := time.Parse(time.RFC3339, data)
 	if err != nil {
 		log.Printf("Erro ao parsear data_baixa '%s': %v", data, err)
@@ -220,8 +220,8 @@ func WebhookUpdateConferido(db *sql.DB, codigoLancamentoOmie int64, data string,
 		return nil, err
 	}
 	result, err := db.Exec(
-		"UPDATE amm_contas_omie_x_agenda SET conferido = 1, data_baixa = ?, data_cred = ?, observacao_baixa = ? WHERE id_conta_omie = ?",
-		parsedData.UTC(), parsedDataCred.UTC(), observacao, codigoLancamentoOmie,
+		"UPDATE amm_contas_omie_x_agenda SET conferido = 1, data_baixa = ?, data_cred = ?, observacao_baixa = ?, valor_baixa = ? WHERE id_conta_omie = ?",
+		parsedData.UTC(), parsedDataCred.UTC(), observacao, valor, codigoLancamentoOmie,
 	)
 	if err != nil {
 		log.Printf("Erro ao atualizar conferido: %v", err)
