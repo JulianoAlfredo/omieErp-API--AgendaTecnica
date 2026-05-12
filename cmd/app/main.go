@@ -3,6 +3,7 @@ package main
 import (
 	"example/web-service-gin/internal/database"
 	"example/web-service-gin/internal/handlers"
+	"example/web-service-gin/internal/middleware"
 	"example/web-service-gin/internal/services"
 	"example/web-service-gin/internal/workers"
 	"fmt"
@@ -40,6 +41,7 @@ func main() {
 	webhookHandler := handlers.NewWebhookHandler(workerPool)
 	faturamentoCompletoHandler := handlers.NewFaturamentoCompletoHandler(omieService)
 	router := gin.Default()
+	router.Use(middleware.RequestLogger(db))
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},

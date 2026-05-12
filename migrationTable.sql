@@ -38,3 +38,16 @@ ALTER TABLE amm_contas_omie_x_agenda
         data_cred        DATETIME       NULL,
         observacao_baixa NVARCHAR(MAX)  NULL,
         valor_baixa      DECIMAL(15, 2) NULL;
+
+CREATE TABLE amm_omie_logs
+(
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    metodo VARCHAR(10) NOT NULL,
+    rota VARCHAR(255) NOT NULL,
+    status_code INT NOT NULL,
+    ip_origem VARCHAR(50) NULL,
+    corpo_requisicao NVARCHAR(MAX) NULL,
+    corpo_resposta NVARCHAR(MAX) NULL,
+    duracao_ms INT NOT NULL,
+    criado_em DATETIME NOT NULL DEFAULT GETDATE()
+);

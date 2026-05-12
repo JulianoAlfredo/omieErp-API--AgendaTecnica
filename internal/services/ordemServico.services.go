@@ -58,7 +58,7 @@ func (s *OmieService) CriarOrdemServico(req models.OrdemServicoRequest) (string,
 		}
 		if strings.Contains(errMsg, "Client-202") ||
 			strings.Contains(errMsg, "nCodCli") ||
-			strings.Contains(errMsg, "cCodIntCli") {
+			strings.Contains(errMsg, "cCodIntCli") || strings.Contains(errMsg, "Client-102") || strings.Contains(errMsg, "Cliente n\u00e3o cadastrado para o C\u00f3digo") {
 			return "", err
 		}
 		if attempt < maxRetries && strings.HasPrefix(errMsg, "SOAP-ENV:Client") {
