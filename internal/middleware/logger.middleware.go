@@ -53,7 +53,7 @@ func RequestLogger(db *sql.DB) gin.HandlerFunc {
 			_, err := db.Exec(
 				`INSERT INTO amm_omie_logs
 					(metodo, rota, status_code, ip_origem, corpo_requisicao, corpo_resposta, duracao_ms)
-				VALUES (@p1, @p2, @p3, @p4, @p5, @p6, @p7)`,
+				VALUES (?, ?, ?, ?, ?, ?, ?)`,
 				metodo,
 				rota,
 				statusCode,
