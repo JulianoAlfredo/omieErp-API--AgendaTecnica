@@ -54,6 +54,7 @@ type OrdemServicoRequest struct {
 			NAliqPIS    float64 `json:"nAliqPIS"`
 		} `json:"Impostos"`
 	} `json:"ServicosPrestados"`
+	InformacoesAgenda []interface{} `json:"InformacoesAgenda"`
 }
 type FaturaOrdemServicoRequest struct {
 	CCodIntOS string `json:"cCodIntOS"`
