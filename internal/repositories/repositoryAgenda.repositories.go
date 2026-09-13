@@ -200,6 +200,12 @@ func UpsertNFSEGerada(db *sql.DB, nCodNF int64, codigoOs float64, cDataEmissao s
 		fmt.Printf("atualizando registro existente\n")
 
 	}
+	// adicionar sempre a data de emissao.
+	_, err = db.Exec("UPDATE amm_contas_receber_notas SET dtEmissao = ? WHERE id = (select id_conta_agenda from amm_contas_omie_x_agenda where id_os = ?)", cDataEmissao, codigoOs)
+	if err != nil {
+		log.Printf("Erro ao atualizar a data de emissao: %v", err)
+		return nil, err
+	}
 
 	if err != nil {
 		log.Printf("Erro ao inserir/atualizar NFSE gerada: %v", err)
